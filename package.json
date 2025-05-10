@@ -1,0 +1,83 @@
+{
+    "name": "framework",
+    "version": "1.0.0",
+    "description": "A modular, opinionated, and lightweight backend framework for Node.js, built with TypeScript and powered by Express.js, TypeORM, and Socket.IO",
+    "keywords": [
+        "typescript",
+        "nodejs-framework",
+        "backend",
+        "framework",
+        "express",
+        "routing",
+        "nodejs"
+    ],
+    "homepage": "https://github.com/refkinscallv/node-framework#readme",
+    "bugs": {
+        "url": "https://github.com/refkinscallv/node-framework/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/refkinscallv/node-framework.git"
+    },
+    "license": "MIT",
+    "author": "Refkinscallv <refkinscallv@gmail.com>",
+    "main": "dist/main.js",
+    "scripts": {
+        "tsc-init": "npx tsc --init",
+        "eslint-init": "npx eslint --init",
+        "build": "npx tsc",
+        "start": "node -r module-alias/register dist/main.js",
+        "dev": "nodemon -r tsconfig-paths/register --exec ts-node src/main.ts",
+        "lint": "eslint . --ext .ts,.js",
+        "lint-fix": "eslint . --ext .ts,.js --fix",
+        "format": "prettier --ignore-path .prettierignore --write src/**/*.ts"
+    },
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "class-transformer": "^0.5.1",
+        "class-validator": "^0.14.1",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
+        "dotenv": "^16.5.0",
+        "ejs": "^3.1.10",
+        "express": "^5.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "lodash": "^4.17.21",
+        "module-alias": "^2.2.3",
+        "multer": "^1.4.5-lts.2",
+        "mysql2": "^3.14.0",
+        "nodemailer": "^7.0.2",
+        "reflect-metadata": "^0.2.2",
+        "socket.io": "^4.8.1",
+        "typeorm": "^0.3.22",
+        "winston": "^3.17.0"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.26.0",
+        "@types/bcrypt": "^5.0.2",
+        "@types/cookie-parser": "^1.4.8",
+        "@types/cors": "^2.8.18",
+        "@types/ejs": "^3.1.5",
+        "@types/express": "^5.0.1",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/lodash": "^4.17.16",
+        "@types/multer": "^1.4.12",
+        "@types/node": "^22.13.11",
+        "@types/nodemailer": "^6.4.17",
+        "eslint": "^9.26.0",
+        "eslint-config-prettier": "^10.1.1",
+        "eslint-plugin-prettier": "^5.2.3",
+        "globals": "^16.1.0",
+        "nodemon": "^3.1.9",
+        "prettier": "^3.5.3",
+        "ts-node": "^10.9.2",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.8.2",
+        "typescript-eslint": "^8.32.0"
+    },
+    "_moduleAliases": {
+        "@core": "./dist/core",
+        "@app": "./dist/app",
+        "@type": "./dist/types"
+    }
+}
