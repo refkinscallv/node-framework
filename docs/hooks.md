@@ -4,7 +4,6 @@ Diagram of the framework’s lifecycle execution:
 
 ```text
 Boot -> Lifecycle Hook (beforeSystem) 
-     -> Providers 
      -> Database 
      -> Express 
      -> HTTP Server 
@@ -46,7 +45,6 @@ FWHooks.register('system', 'shutdown', async () => {
 ```bash
 [BOOT] Boot the application
 [HOOK] before system
-[PROVIDERS] Auto-register providers
 [DATABASE] Database connected successfully
 [DATABASE] Database type is: mysql
 [BOOT] Successfully boot the application

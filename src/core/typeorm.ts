@@ -6,7 +6,6 @@ import FWCommon from '@core/common';
 import DBConfig from '@app/config/database';
 import { TypeOrmDialect, RunSeederType } from '@type/core';
 import runSeeders from '@app/database/seeders/register';
-import FWContainer from '@core/di/container';
 
 class Database {
     private static _instance: DataSource;

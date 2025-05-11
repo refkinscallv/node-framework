@@ -17,7 +17,6 @@ It aims to help developers build scalable applications faster with clear structu
 ## 🚀 Features
 
 - 🔧 Modular folder structure
-- ⚙️ Built-in dependency injection
 - 🧠 Lifecycle hooks on : (`Before System`, `After System`, `Shutdown System`)
 - 📦 DTO-based validation using [`class-validator`](https://github.com/typestack/class-validator)
 - 🔄 Dynamic middleware and route registration (routes with [Laravel](https://laravel.com/) styles routing : grouping routes, grouping routes with middleware, set route with standard method)
@@ -39,7 +38,7 @@ root/
 │
 ├── public/
 │   ├── static/           # Serve static files at /static/\*
-│   ├── file/             # Uploads (e.g., multer)
+│   │   └── file/         # Uploads (e.g., multer)
 │   └── views/            # EJS templates
 │
 ├── src/
@@ -62,13 +61,11 @@ root/
 │   │   │   ├── middlewares/
 │   │   │   └── validators/
 │   │   │       └── dto/
-│   │   ├── providers/    # Dependency container: contains the Injectable file to load
 │   │   └── routes/
 │   │       └── register.ts
 │   │
 │   └── core/
 │       ├── boot.ts       # Bootstrap logic (called by main.ts)
-│       ├── di/           # DI container
 │       ├── common.ts     # Shared helper functions
 │       ├── cookie.ts     # Cookie utilities based on express
 │       ├── express.ts    # Express app builder
