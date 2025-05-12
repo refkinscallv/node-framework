@@ -129,21 +129,24 @@ class Routes {
             } else if (Array.isArray(route.handler) && route.handler.length === 2) {
                 const [Controller, method] = route.handler;
 
-                let instance: any;
-                if (typeof Controller === 'function') {
-                    instance = new Controller();
+                if (typeof Controller === 'function' && typeof Controller[method] === 'function') {
+                    handlerFunction = Controller[method].bind(Controller);
+                } else if (typeof Controller === 'function') {
+                    const instance = new Controller();
+                    if (typeof instance[method] === 'function') {
+                        handlerFunction = instance[method].bind(instance);
+                    } else {
+                        console.error(
+                            `[ROUTES] Method ${method} not found in controller instance ${Controller.name || 'Anonymous'}`,
+                        );
+                        continue;
+                    }
                 } else {
-                    instance = Controller;
-                }
-
-                if (typeof instance[method] !== 'function') {
                     console.error(
-                        `[ROUTES] Method ${method} not found in controller ${Controller.name || 'Anonymous'}`,
+                        `[ROUTES] Invalid controller type for route: ${route.path}`,
                     );
                     continue;
                 }
-
-                handlerFunction = instance[method].bind(instance);
             } else {
                 console.error(
                     `[ROUTES] Invalid handler format for route: ${route.path}`,

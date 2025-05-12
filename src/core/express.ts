@@ -8,7 +8,6 @@ import cors from 'cors';
 import RegisterMiddlewares from '@app/http/middlewares/register';
 import Routes from '@core/routes';
 import FWCommon from '@core/common';
-import FWHooks from '@core/hooks';
 
 class FWExpress {
     public static express: Express = express();
