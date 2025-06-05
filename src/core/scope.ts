@@ -1,19 +1,27 @@
+'use strict';
+
 /**
- * packages
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
  */
-import FWCommon from '@core/common';
-import FWHooks from '@core/hooks';
+
+import Common from '@core/common';
+import Hooks from '@core/hooks';
 
 /** =======================
  *  Set timezone globally
  *  ======================= */
-process.env.TZ = FWCommon.env<string>('APP_TIMEZONE', 'UTC');
+process.env.TZ = Common.env<string>('APP_TIMEZONE', 'UTC');
 
 /** =======================
  *  Define env check helper
  *  ======================= */
 const isDev = (): boolean => {
-    const env = FWCommon.env<string>('APP_ENV', 'production')?.toLowerCase();
+    const env = Common.env<string>('APP_ENV', 'production')?.toLowerCase();
     return ['development', 'develop', 'dev'].includes(env);
 };
 
@@ -64,7 +72,7 @@ process.on('rejectionHandled', (promise) => {
 });
 
 process.on('SIGINT', async () => {
-    await FWHooks.shutdown();
+    await Hooks.shutdown();
     console.log(`[SCOPE] Process terminated (SIGINT)`);
     process.exit(0);
 });

@@ -1,11 +1,22 @@
+'use strict';
+
+/**
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
+ */
+
 import { HookFn, HookType, Subsystem } from '@type/core';
 
-class FWHooks {
+class Hooks {
     private static hooks: Record<
         Subsystem,
         Partial<Record<HookType, HookFn[]>>
     > = {
-        system: {}
+        system: {},
     };
 
     public static register(subsystem: Subsystem, type: HookType, fn: HookFn) {
@@ -37,4 +48,4 @@ class FWHooks {
     }
 }
 
-export default FWHooks;
+export default Hooks;

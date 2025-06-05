@@ -1,14 +1,7 @@
-/**
- * packages
- */
-import FWCommon from '@core/common';
-
-/**
- * seeder
- */
+import Common from '@core/common';
 
 export default async function runSeeders() {
-    if (FWCommon.env<string>('DB_SEED', 'off') === 'on') {
-        // await userSeeder();
+    if (Common.env<string>('DB_SEED', 'off') === 'on') {
+        // register here
     }
 }

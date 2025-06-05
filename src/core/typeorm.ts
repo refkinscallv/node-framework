@@ -1,8 +1,16 @@
+'use strict';
+
 /**
- * packages
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
  */
+
 import { DataSource, DataSourceOptions } from 'typeorm';
-import FWCommon from '@core/common';
+import Common from '@core/common';
 import DBConfig from '@app/config/database';
 import { TypeOrmDialect, RunSeederType } from '@type/core';
 import runSeeders from '@app/database/seeders/register';
@@ -21,7 +29,7 @@ class Database {
     }
 
     public static get config(): DataSourceOptions {
-        this.dbType = FWCommon.env<TypeOrmDialect>('DB_TYPE', 'mysql');
+        this.dbType = Common.env<TypeOrmDialect>('DB_TYPE', 'mysql');
 
         if (!DBConfig[this.dbType]) {
             console.error(`[DATABASE] Unsupported DB_TYPE: '${this.dbType}`);

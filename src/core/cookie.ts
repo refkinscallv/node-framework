@@ -1,17 +1,28 @@
+'use strict';
+
+/**
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
+ */
+
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import FWCommon from '@core/common';
+import Common from '@core/common';
 import { CookieOptions } from '@type/core';
 
-class FWCookie {
+class Cookie {
     private static req: Request;
     private static res: Response;
     private static cache: Record<string, any> | null = null;
-    private static readonly cookieName = FWCommon.env<string>(
+    private static readonly cookieName = Common.env<string>(
         'COOKIE_NAME',
-        'warf_token',
+        'node_framework_cookie',
     );
-    private static readonly secret = FWCommon.env<string>(
+    private static readonly secret = Common.env<string>(
         'COOKIE_SECRET',
         'default_cookie_secret',
     );
@@ -118,10 +129,10 @@ class FWCookie {
             const enc = this.#encrypt(JSON.stringify(data));
 
             const config: CookieOptions = {
-                path: FWCommon.env('COOKIE_PATH', '/'),
-                maxAge: parseInt(FWCommon.env('COOKIE_EXPIRE', '86400000')),
-                secure: FWCommon.env('COOKIE_SECURE', 'false') === 'true',
-                httpOnly: FWCommon.env('COOKIE_HTTP_ONLY', 'true') === 'true',
+                path: Common.env('COOKIE_PATH', '/'),
+                maxAge: parseInt(Common.env('COOKIE_EXPIRE', '86400')) * 1000,
+                secure: Common.env('COOKIE_SECURE', 'false') === 'true',
+                httpOnly: Common.env('COOKIE_HTTP_ONLY', 'true') === 'true',
                 ...options,
             };
 
@@ -158,4 +169,4 @@ class FWCookie {
     }
 }
 
-export default FWCookie;
+export default Cookie;

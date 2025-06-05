@@ -1,8 +1,19 @@
+'use strict';
+
+/**
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
+ */
+
 import 'reflect-metadata';
 import 'dotenv/config';
 import { createHash, randomBytes } from 'crypto';
 
-class FWCommon {
+class Common {
     public static env<T = any>(key: string, defaultValue: any = null): T {
         return (
             process.env[key] !== undefined ? process.env[key] : defaultValue
@@ -71,4 +82,4 @@ class FWCommon {
     }
 }
 
-export default FWCommon;
+export default Common;

@@ -1,8 +1,8 @@
-import FWCommon from '@core/common';
+import Common from '@core/common';
 
 const SocketConfig = {
     cors: {
-        origin: [FWCommon.baseUrl()],
+        origin: [Common.baseUrl()],
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: [
             'X-Requested-With',

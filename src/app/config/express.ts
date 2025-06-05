@@ -34,14 +34,17 @@ const ExpressConfig = {
         preflightContinue: false,
         optionsSuccessStatus: 200,
     },
+
     view: {
         engine: 'ejs',
         path: path.join(__dirname, '../../../public/views'),
     },
+
     static: {
         route: '/static',
         path: path.join(__dirname, '../../../public/static'),
     },
+
     multer: {
         storage: multer.diskStorage({
             destination: path.join(__dirname, '../../../public/static/file'),

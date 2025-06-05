@@ -29,12 +29,18 @@ export interface PaginateResult<T> {
     filter: string[] | string | null | any;
 }
 
+/**
+ * Middleware function type for Express routes.
+ */
 export type RouteMiddleware = (
     req: Request,
     res: Response,
     next: NextFunction,
 ) => void;
 
+/**
+ * HTTP methods supported by the routing system.
+ */
 export type RouteMethod =
     | 'get'
     | 'post'
@@ -45,14 +51,23 @@ export type RouteMethod =
     | 'head'
     | 'all';
 
+/**
+ * HTTP context passed to route handlers.
+ */
 export type HttpContext = {
     req: Request;
     res: Response;
     next: NextFunction;
 };
 
+/**
+ * Route handler can be a function or a [Controller, method] tuple.
+ */
 export type RouteHandler = ((params: HttpContext) => any) | [any, string];
 
+/**
+ * Route definition interface.
+ */
 export interface RouteDefinition {
     methods: RouteMethod[];
     path: string;

@@ -5,5 +5,6 @@ import multer from 'multer';
 declare module 'express-serve-static-core' {
     interface Request {
         upload: multer.Multer;
+        user: any;
     }
 }

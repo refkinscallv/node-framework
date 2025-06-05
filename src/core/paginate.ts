@@ -1,7 +1,18 @@
+'use strict';
+
+/**
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
+ */
+
 import { Repository, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 import { PaginateParams, PaginateResult } from '@type/core';
 
-class FWPaginate {
+class Paginate {
     public static async make<T extends ObjectLiteral>(
         repo: Repository<T>,
         params: PaginateParams<T>,
@@ -54,4 +65,4 @@ class FWPaginate {
     }
 }
 
-export default FWPaginate;
+export default Paginate;

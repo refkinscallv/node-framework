@@ -1,14 +1,25 @@
-import nodemailer, { Transporter } from 'nodemailer';
-import FWCommon from '@core/common';
+'use strict';
 
-class FWMailer {
+/**
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
+ */
+
+import nodemailer, { Transporter } from 'nodemailer';
+import Common from '@core/common';
+
+class Mailer {
     private static transport: Transporter | null = null;
 
     private static init() {
         if (!this.transport) {
-            const driver = FWCommon.env<string>('MAIL_DRIVER');
-            const user = FWCommon.env<string>('MAIL_USER');
-            const pass = FWCommon.env<string>('MAIL_PASS');
+            const driver = Common.env<string>('MAIL_DRIVER');
+            const user = Common.env<string>('MAIL_USER');
+            const pass = Common.env<string>('MAIL_PASS');
 
             this.transport = nodemailer.createTransport({
                 service: driver,
@@ -24,9 +35,9 @@ class FWMailer {
     }) {
         this.init();
 
-        const from = `${FWCommon.env('MAIL_FROM_NAME')} <${FWCommon.env('MAIL_FROM_EMAIL')}>`;
+        const from = `${Common.env('MAIL_FROM_NAME')} <${Common.env('MAIL_FROM_EMAIL')}>`;
 
-        return FWCommon.handler(
+        return Common.handler(
             async () => {
                 return this.transport!.sendMail({
                     from,
@@ -40,4 +51,4 @@ class FWMailer {
     }
 }
 
-export default FWMailer;
+export default Mailer;

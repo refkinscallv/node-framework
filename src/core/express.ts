@@ -1,16 +1,27 @@
-import express, { Express, Router, Response } from 'express';
+'use strict';
+
+/**
+ * @module node-framework
+ * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO 
+ * @author Refkinscallv
+ * @repository https://github.com/refkinscallv/node-framework
+ * @version 2.9.0
+ * @date 2025
+ */
+
+import express, { Express as TExpress, Router, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import ExpressConfig from '@app/config/express';
 import multer from 'multer';
-import FWCookie from '@core/cookie';
+import Cookie from '@core/cookie';
 import ejs from 'ejs';
 import cors from 'cors';
 import RegisterMiddlewares from '@app/http/middlewares/register';
 import Routes from '@core/routes';
-import FWCommon from '@core/common';
+import Common from '@core/common';
 
-class FWExpress {
-    public static express: Express = express();
+class Express {
+    public static express: TExpress = express();
     private static router: Router = express.Router();
 
     public static async init() {
@@ -24,7 +35,7 @@ class FWExpress {
         this.express.use(cookieParser());
         this.express.use(cors(ExpressConfig.cors));
         this.express.use((req, res, next) => {
-            FWCookie.init(req, res);
+            Cookie.init(req, res);
             next();
         });
         this.express.use(
@@ -90,7 +101,7 @@ class FWExpress {
     ): Response {
         const data = {
             ...locals,
-            FWCommon,
+            Common,
         };
 
         return res.status(status).render(viewName, data) as unknown as Response;
@@ -105,4 +116,4 @@ class FWExpress {
     }
 }
 
-export default FWExpress;
+export default Express;

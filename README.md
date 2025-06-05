@@ -6,13 +6,13 @@
 It aims to help developers build scalable applications faster with clear structure, out-of-the-box features, and familiar syntax.
 
 ---
-
+<!-- 
 ## 📚 Orther Documentation
 
 - Core API : [`docs/api`](./docs/apis.md)
 - Lifecycle Hooks : [`docs/hooks`](./docs/hooks.md)
 
----
+--- -->
 
 ## 🚀 Features
 
