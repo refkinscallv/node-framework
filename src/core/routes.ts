@@ -28,8 +28,7 @@ class Routes {
      * Normalizations path
      */
     private static normalizePath(path: string): string {
-        const normalized = '/' + path.replace(/^\/+|\/+$/g, '');
-        return normalized === '/' ? '/' : normalized.replace(/\/+$/, '');
+        return '/' + path.split('/').filter(Boolean).join('/');
     }
 
     /**
@@ -123,7 +122,9 @@ class Routes {
         const previousPrefix = this.prefix;
         const previousMiddlewares = this.groupMiddlewares;
 
-        this.prefix = `${previousPrefix}${prefix}`.replace(/\/+/g, '/');
+        const fullPrefix = [previousPrefix, prefix].filter(Boolean).join('/');
+
+        this.prefix = this.normalizePath(fullPrefix);
         this.groupMiddlewares = [...previousMiddlewares, ...middlewares];
 
         callback();
