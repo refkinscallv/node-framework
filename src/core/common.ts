@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -15,34 +15,34 @@ import { createHash, randomBytes } from 'crypto';
 
 class Common {
     public static env<T = any>(key: string, defaultValue: any = null): T {
-        return (
-            process.env[key] !== undefined ? process.env[key] : defaultValue
-        ) as T;
+        return (process.env[key] ?? defaultValue) as T;
     }
 
-    public static baseUrl(segment: string = ''): string {
+    public static baseUrl(segment = ''): string {
         const baseUrl = this.env<string>(
             'APP_URL',
             'http://localhost:3000',
         ).replace(/\/+$/, '');
-        return `${baseUrl}${segment ? `/${segment.replace(/^\/+/, '')}` : ''}`;
+        const cleanSegment = segment.replace(/^\/+/, '');
+        return `${baseUrl}${cleanSegment ? '/' + cleanSegment : ''}`;
     }
 
     public static extractUrl(
         fullUrl: string,
         get: Exclude<keyof URL, 'toJSON'>,
-    ): any | URL {
+    ): string | URL[keyof URL] {
         try {
-            return new URL(fullUrl)[get];
+            const url = new URL(fullUrl);
+            return url[get];
         } catch {
             return fullUrl;
         }
     }
 
     public static json(
-        status: boolean = true,
-        code: number = 200,
-        message: string = '',
+        status = true,
+        code = 200,
+        message = '',
         result: object | any[] | null = {},
         custom: Partial<Record<string, any>> = {},
     ) {
@@ -55,8 +55,8 @@ class Common {
     ): Promise<T> {
         try {
             return await callback();
-        } catch (err: any) {
-            if (typeof shouldThrow === 'function') {
+        } catch (err) {
+            if (shouldThrow) {
                 const result = await shouldThrow(err);
                 if (result !== undefined) return result;
             }
@@ -72,13 +72,10 @@ class Common {
         const chars =
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const bytes = randomBytes(length);
-
-        let result = '';
-        for (let i = 0; i < length; i++) {
-            result += chars[bytes[i] % chars.length];
-        }
-
-        return result;
+        return Array.from(bytes)
+            .slice(0, length)
+            .map((byte) => chars[byte % chars.length])
+            .join('');
     }
 }
 

@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -19,6 +19,7 @@ import cors from 'cors';
 import RegisterMiddlewares from '@app/http/middlewares/register';
 import Routes from '@core/routes';
 import Common from '@core/common';
+import qs from 'qs';
 
 class Express {
     public static express: TExpress = express();
@@ -30,6 +31,7 @@ class Express {
     }
 
     private static async middlewares() {
+        this.express.set('query parser', (str: string) => qs.parse(str));
         this.express.use(express.json());
         this.express.use(express.urlencoded({ extended: true }));
         this.express.use(cookieParser());

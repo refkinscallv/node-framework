@@ -1,11 +1,9 @@
 'use strict';
 
 /**
- * @module node-framework
- * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
- * @author Refkinscallv
- * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @module server
+ * @description HTTP server core for node-framework
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -15,19 +13,31 @@ import Express from '@core/express';
 import Hooks from '@core/hooks';
 
 class Server {
-    public static server: http.Server = http.createServer(Express.express);
-    private static serverPort: number = Number(
-        Common.env<number>('APP_PORT', 3000),
-    );
-    private static serverUrl: string = Common.env<string>(
+    private static readonly port = Number(Common.env<number>('APP_PORT', 3000));
+    private static readonly url = Common.env<string>(
         'APP_URL',
-        'http://localhost:3000',
+        `http://localhost:${Server.port}`,
     );
+    private static readonly server = http.createServer(Express.express);
 
-    public static async init() {
-        this.server.listen(this.serverPort, async () => {
-            console.log(`[SERVER] Server is running at: ${this.serverUrl}`);
-            await Hooks.init('system', 'after');
+    /** Public accessor if other modules need HTTP server instance (e.g. Socket.IO) */
+    public static getHttpServer(): http.Server {
+        return this.server;
+    }
+
+    public static async init(): Promise<void> {
+        this.server.listen(this.port, async () => {
+            console.log(`[SERVER] Running at: ${this.url}`);
+            try {
+                await Hooks.init('system', 'after');
+            } catch (err) {
+                console.error('[SERVER] Hook init failed:', err);
+            }
+        });
+
+        this.server.on('error', (err) => {
+            console.error('[SERVER] Server error:', err);
+            process.exit(1);
         });
     }
 }

@@ -5,10 +5,10 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
-
+// file: core/Routes.ts
 import { Router, Request, Response, NextFunction } from 'express';
 import {
     HttpContext,
@@ -24,16 +24,20 @@ class Routes {
     private static groupMiddlewares: RouteMiddleware[] = [];
     private static globalMiddlewares: RouteMiddleware[] = [];
 
-    /**
-     * Normalizations path
-     */
     private static normalizePath(path: string): string {
         return '/' + path.split('/').filter(Boolean).join('/');
     }
 
-    /**
-     * Adds a route with specified methods, path, handler, and middlewares.
-     */
+    private static allMethods: RouteMethod[] = [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch',
+        'options',
+        'head',
+    ];
+
     static add(
         methods: RouteMethod | RouteMethod[],
         path: string,
@@ -62,7 +66,6 @@ class Routes {
     ) {
         this.add('get', path, handler, middlewares);
     }
-
     static post(
         path: string,
         handler: RouteHandler,
@@ -70,7 +73,6 @@ class Routes {
     ) {
         this.add('post', path, handler, middlewares);
     }
-
     static put(
         path: string,
         handler: RouteHandler,
@@ -78,7 +80,6 @@ class Routes {
     ) {
         this.add('put', path, handler, middlewares);
     }
-
     static delete(
         path: string,
         handler: RouteHandler,
@@ -86,7 +87,6 @@ class Routes {
     ) {
         this.add('delete', path, handler, middlewares);
     }
-
     static patch(
         path: string,
         handler: RouteHandler,
@@ -94,7 +94,6 @@ class Routes {
     ) {
         this.add('patch', path, handler, middlewares);
     }
-
     static options(
         path: string,
         handler: RouteHandler,
@@ -102,7 +101,6 @@ class Routes {
     ) {
         this.add('options', path, handler, middlewares);
     }
-
     static head(
         path: string,
         handler: RouteHandler,
@@ -111,134 +109,95 @@ class Routes {
         this.add('head', path, handler, middlewares);
     }
 
-    /**
-     * Groups routes with a common prefix and middlewares.
-     */
     static group(
         prefix: string,
         callback: () => void,
         middlewares: RouteMiddleware[] = [],
     ) {
-        const previousPrefix = this.prefix;
-        const previousMiddlewares = this.groupMiddlewares;
+        const prevPrefix = this.prefix;
+        const prevGroup = this.groupMiddlewares;
 
-        const fullPrefix = [previousPrefix, prefix].filter(Boolean).join('/');
-
-        this.prefix = this.normalizePath(fullPrefix);
-        this.groupMiddlewares = [...previousMiddlewares, ...middlewares];
-
+        this.prefix = this.normalizePath(
+            [prevPrefix, prefix].filter(Boolean).join('/'),
+        );
+        this.groupMiddlewares = [...prevGroup, ...middlewares];
         callback();
 
-        this.prefix = previousPrefix;
-        this.groupMiddlewares = previousMiddlewares;
+        this.prefix = prevPrefix;
+        this.groupMiddlewares = prevGroup;
     }
 
-    /**
-     * Applies global middlewares for the duration of the callback.
-     */
     static middleware(middlewares: RouteMiddleware[], callback: () => void) {
-        const previousMiddlewares = this.globalMiddlewares;
-
-        this.globalMiddlewares = [...previousMiddlewares, ...middlewares];
-
+        const prevGlobal = this.globalMiddlewares;
+        this.globalMiddlewares = [...prevGlobal, ...middlewares];
         callback();
-
-        this.globalMiddlewares = previousMiddlewares;
+        this.globalMiddlewares = prevGlobal;
     }
 
-    /**
-     * Applies all registered routes to the provided Express Router instance.
-     * Handles controller-method binding and middleware application.
-     */
+    private static resolveHandler(
+        handler: RouteHandler,
+    ): ((ctx: HttpContext) => Promise<void> | void) | undefined {
+        if (typeof handler === 'function') return handler;
+
+        if (Array.isArray(handler) && handler.length === 2) {
+            const [Controller, method] = handler;
+
+            // static method
+            if (
+                typeof Controller === 'function' &&
+                typeof Controller[method] === 'function'
+            ) {
+                return Controller[method].bind(Controller);
+            }
+
+            // instance method
+            if (typeof Controller === 'function') {
+                const instance = new Controller();
+                if (typeof instance[method] === 'function') {
+                    return instance[method].bind(instance);
+                }
+            }
+        }
+
+        return undefined;
+    }
+
     static async apply(router: Router) {
         for (const route of this.routes) {
-            let handlerFunction: RouteHandler | undefined;
+            const handlerFn = this.resolveHandler(route.handler);
 
-            if (typeof route.handler === 'function') {
-                handlerFunction = route.handler;
-            } else if (
-                Array.isArray(route.handler) &&
-                route.handler.length === 2
-            ) {
-                const [Controller, method] = route.handler;
+            if (!handlerFn) {
+                console.error(
+                    `[ROUTES] Invalid handler for route ${route.path}`,
+                );
+                continue;
+            }
 
-                if (
-                    typeof Controller === 'function' &&
-                    typeof Controller[method] === 'function'
-                ) {
-                    handlerFunction = Controller[method].bind(Controller);
-                } else if (typeof Controller === 'function') {
-                    const instance = new Controller();
-                    if (typeof instance[method] === 'function') {
-                        handlerFunction = instance[method].bind(instance);
-                    } else {
-                        console.error(
-                            `[ROUTES] Method ${method} not found in controller instance ${Controller.name || 'Anonymous'}`,
-                        );
-                        continue;
-                    }
-                } else {
+            for (const method of route.methods) {
+                if (!this.allMethods.includes(method)) {
                     console.error(
-                        `[ROUTES] Invalid controller type for route: ${route.path}`,
+                        `[ROUTES] Invalid method '${method}' for route ${route.path}`,
                     );
                     continue;
                 }
-            } else {
-                console.error(
-                    `[ROUTES] Invalid handler format for route: ${route.path}`,
+
+                router[method](
+                    route.path,
+                    ...(route.middlewares || []),
+                    async (req: Request, res: Response, next: NextFunction) => {
+                        try {
+                            const ctx: HttpContext = { req, res, next };
+                            const result = handlerFn(ctx);
+                            if (result instanceof Promise) await result;
+                        } catch (err: any) {
+                            console.error(
+                                `[ROUTES] Error on ${method.toUpperCase()} ${route.path}:`,
+                                err.message,
+                            );
+                            next(err);
+                        }
+                    },
                 );
-            }
-
-            if (handlerFunction) {
-                for (const method of route.methods) {
-                    if (
-                        ![
-                            'get',
-                            'post',
-                            'put',
-                            'delete',
-                            'patch',
-                            'options',
-                            'head',
-                        ].includes(method)
-                    ) {
-                        console.error(
-                            `[ROUTES] Invalid HTTP method: ${method} for route: ${route.path}`,
-                        );
-                        continue;
-                    }
-
-                    router[method](
-                        route.path,
-                        ...(route.middlewares || []),
-                        async (
-                            req: Request,
-                            res: Response,
-                            next: NextFunction,
-                        ) => {
-                            try {
-                                const routeHttpHandler: HttpContext = {
-                                    req,
-                                    res,
-                                    next,
-                                };
-
-                                if (typeof handlerFunction === 'function') {
-                                    const result =
-                                        handlerFunction(routeHttpHandler);
-                                    if (result instanceof Promise) {
-                                        await result;
-                                    }
-                                }
-                            } catch (error: any) {
-                                console.error(
-                                    `[ROUTES] Error in route ${method.toUpperCase()} ${route.path}: ${error.message}`,
-                                );
-                                next(error);
-                            }
-                        },
-                    );
-                }
             }
         }
     }

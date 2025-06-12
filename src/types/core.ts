@@ -63,7 +63,10 @@ export type HttpContext = {
 /**
  * Route handler can be a function or a [Controller, method] tuple.
  */
-export type RouteHandler = ((params: HttpContext) => any) | [any, string];
+export type RouteHandler =
+    | ((ctx: HttpContext) => any)
+    | [new () => any, string]
+    | [any, string];
 
 /**
  * Route definition interface.

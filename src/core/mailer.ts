@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -15,37 +15,41 @@ import Common from '@core/common';
 class Mailer {
     private static transport: Transporter | null = null;
 
-    private static init() {
-        if (!this.transport) {
-            const driver = Common.env<string>('MAIL_DRIVER');
-            const user = Common.env<string>('MAIL_USER');
-            const pass = Common.env<string>('MAIL_PASS');
+    private static getTransport(): Transporter {
+        if (this.transport) return this.transport;
 
-            this.transport = nodemailer.createTransport({
-                service: driver,
-                auth: { user, pass },
-            });
+        const service = Common.env<string>('MAIL_DRIVER');
+        const user = Common.env<string>('MAIL_USER');
+        const pass = Common.env<string>('MAIL_PASS');
+
+        if (!service || !user || !pass) {
+            throw new Error('[MAILER] Missing required mail configuration');
         }
+
+        this.transport = nodemailer.createTransport({
+            service,
+            auth: { user, pass },
+        });
+
+        return this.transport;
     }
 
-    static async send(options: {
+    static async send({
+        to,
+        subject,
+        html,
+    }: {
         to: string | string[];
         subject: string;
         html: string;
     }) {
-        this.init();
-
-        const from = `${Common.env('MAIL_FROM_NAME')} <${Common.env('MAIL_FROM_EMAIL')}>`;
+        const fromName = Common.env('MAIL_FROM_NAME', 'noreply');
+        const fromEmail = Common.env('MAIL_FROM_EMAIL', 'noreply@example.com');
+        const from = `${fromName} <${fromEmail}>`;
 
         return Common.handler(
-            async () => {
-                return this.transport!.sendMail({
-                    from,
-                    to: options.to,
-                    subject: options.subject,
-                    html: options.html,
-                });
-            },
+            async () =>
+                this.getTransport().sendMail({ from, to, subject, html }),
             () => null,
         );
     }

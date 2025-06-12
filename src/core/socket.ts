@@ -1,11 +1,9 @@
 'use strict';
 
 /**
- * @module node-framework
- * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
- * @author Refkinscallv
- * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @module socket
+ * @description Socket.IO integration for node-framework
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -14,9 +12,23 @@ import Server from '@core/server';
 import SocketConfig from '@app/config/socket';
 
 class Socket {
-    public static io: SocketServer = new SocketServer(Server.server, {
-        cors: SocketConfig.cors,
-    });
+    public static readonly io: SocketServer = new SocketServer(
+        Server.getHttpServer(),
+        {
+            cors: SocketConfig.cors,
+        },
+    );
+
+    public static init(): void {
+        this.io.on('connection', (socket) => {
+            console.log(`[SOCKET] Client connected: ${socket.id}`);
+            // Add your handlers here if needed
+        });
+
+        this.io.on('error', (err) => {
+            console.error('[SOCKET] Socket.IO Error:', err);
+        });
+    }
 }
 
 export default Socket;

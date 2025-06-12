@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -15,23 +15,21 @@ import Database from '@core/typeorm';
 import Hooks from '@core/hooks';
 
 class Boot {
-    public static run() {
-        (async () => {
-            console.log(`[BOOT] Boot the application`);
+    public static async run() {
+        console.log(`[BOOT] Boot the application`);
+
+        try {
             await Hooks.init('system', 'before');
-            Database.init()
-                .then(() => {
-                    Express.init();
-                    Server.init();
-                    console.log(`[BOOT] Successfully boot the application`);
-                })
-                .catch((error: any) => {
-                    console.error(
-                        `[BOOT] Failed to booting application: ${error}`,
-                    );
-                    process.exit(1);
-                });
-        })();
+            await Database.init();
+
+            Express.init();
+            Server.init();
+
+            console.log(`[BOOT] Successfully booted the application`);
+        } catch (error) {
+            console.error(`[BOOT] Failed to boot application:`, error);
+            process.exit(1);
+        }
     }
 }
 

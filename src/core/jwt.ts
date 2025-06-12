@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -13,13 +13,13 @@ import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 import Common from '@core/common';
 
 class JWT {
-    private static secretKey: string =
-        Common.env<string>('JWT_SECRET_KEY') ||
-        (() => {
-            throw new Error('JWT_SECRET_KEY is not defined');
-        })();
+    private static readonly secretKey: string = (() => {
+        const key = Common.env('JWT_SECRET_KEY');
+        if (!key) throw new Error('JWT_SECRET_KEY is not defined');
+        return key;
+    })();
 
-    private static expireIn: number = (() => {
+    private static readonly expireIn: number = (() => {
         const raw = Common.env('JWT_EXPIRE_IN', '86400');
         const parsed = Number(raw);
         if (isNaN(parsed)) throw new Error('JWT_EXPIRE_IN must be a number');
@@ -37,23 +37,18 @@ class JWT {
     }
 
     static verify<T = any>(
-        token: string | null | undefined,
+        token?: string | null,
     ): { status: boolean; result: T | string } {
-        if (!token) {
-            return {
-                status: false,
-                result: 'Token is missing',
-            };
-        }
+        if (!token) return { status: false, result: 'Token is missing' };
 
         try {
             const decoded = jwt.verify(token, this.secretKey) as T;
             return { status: true, result: decoded };
         } catch (err: any) {
-            console.warn(`[JWT] Token verification failed: ${err.message}`);
+            console.warn(`[JWT] Verification failed: ${err.message}`);
             return {
                 status: false,
-                result: `Token verification failed: ${err.message}`,
+                result: `Verification failed: ${err.message}`,
             };
         }
     }
@@ -69,7 +64,7 @@ class JWT {
         try {
             return jwt.decode(token) as T;
         } catch (err: any) {
-            console.warn(`Token decoding failed: ${err.message}`);
+            console.warn(`[JWT] Decoding failed: ${err.message}`);
             return null;
         }
     }

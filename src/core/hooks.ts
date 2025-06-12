@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -19,31 +19,29 @@ class Hooks {
         system: {},
     };
 
-    public static register(subsystem: Subsystem, type: HookType, fn: HookFn) {
-        if (!this.hooks[subsystem][type]) {
-            this.hooks[subsystem][type] = [];
-        }
+    static register(subsystem: Subsystem, type: HookType, fn: HookFn) {
+        if (!this.hooks[subsystem]) this.hooks[subsystem] = {};
+        this.hooks[subsystem][type] ??= [];
         this.hooks[subsystem][type]!.push(fn);
     }
 
-    public static async init(subsystem: Subsystem, type: HookType) {
-        const fns = this.hooks[subsystem][type];
-        if (!fns) return;
+    static async init(subsystem: Subsystem, type: HookType) {
+        const fns = this.hooks[subsystem]?.[type];
+        if (!fns?.length) return;
 
         for (const fn of fns) {
             try {
                 await fn();
             } catch (err) {
                 console.error(`[HOOK] Error in ${subsystem}:${type}`, err);
-                if (type === 'shutdown') continue;
-                throw err;
+                if (type !== 'shutdown') throw err;
             }
         }
     }
 
-    public static async shutdown() {
-        for (const system of Object.keys(this.hooks) as Subsystem[]) {
-            await this.init(system, 'shutdown');
+    static async shutdown() {
+        for (const subsystem of Object.keys(this.hooks) as Subsystem[]) {
+            await this.init(subsystem, 'shutdown');
         }
     }
 }

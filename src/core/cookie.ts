@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 2.9.0
+ * @version 3.0.0
  * @date 2025
  */
 
@@ -15,14 +15,15 @@ import Common from '@core/common';
 import { CookieOptions } from '@type/core';
 
 class Cookie {
-    private static req: Request;
-    private static res: Response;
+    private static req: Request | null = null;
+    private static res: Response | null = null;
     private static cache: Record<string, any> | null = null;
-    private static readonly cookieName = Common.env<string>(
+
+    private static readonly cookieName = Common.env(
         'COOKIE_NAME',
         'node_framework_cookie',
     );
-    private static readonly secret = Common.env<string>(
+    private static readonly secret = Common.env(
         'COOKIE_SECRET',
         'default_cookie_secret',
     );
@@ -34,24 +35,24 @@ class Cookie {
     }
 
     static all<T = Record<string, any>>(): T | null {
-        if (!this.req) return null;
-        return this.#readCookie() as T;
+        return this.#readCookie() as T | null;
     }
 
     static get<T = any>(keys: string | string[]): T | undefined {
-        if (!this.req) return undefined;
         const full = this.#readCookie();
+        if (!full) return undefined;
 
         if (Array.isArray(keys)) {
-            return keys.reduce((result: Record<string, any>, key) => {
-                if (full?.[key] !== undefined) {
-                    result[key] = full[key];
-                }
-                return result;
-            }, {}) as T;
+            return keys.reduce(
+                (result, key) => {
+                    if (key in full) result[key] = full[key];
+                    return result;
+                },
+                {} as Record<string, any>,
+            ) as T;
         }
 
-        return full?.[keys];
+        return full[keys];
     }
 
     static set(
@@ -63,12 +64,10 @@ class Cookie {
 
         const current = this.#readCookie() || {};
 
-        if (typeof key === 'string' && value !== undefined) {
+        if (typeof key === 'string') {
             current[key] = value;
-        } else if (typeof key === 'object') {
-            Object.entries(key).forEach(([k, v]) => {
-                current[k] = v;
-            });
+        } else {
+            Object.assign(current, key);
         }
 
         return this.#writeCookie(current, options);
@@ -82,19 +81,10 @@ class Cookie {
 
         const current = this.#readCookie() || {};
 
-        if (Array.isArray(keys)) {
-            keys.forEach((key) => {
-                delete current[key];
-                if (this.cache) {
-                    delete this.cache[key];
-                }
-            });
-        } else {
-            delete current[keys];
-            if (this.cache) {
-                delete this.cache[keys];
-            }
-        }
+        (Array.isArray(keys) ? keys : [keys]).forEach((k) => {
+            delete current[k];
+            this.cache && delete this.cache[k];
+        });
 
         return this.#writeCookie(current, options);
     }
@@ -108,14 +98,14 @@ class Cookie {
 
     static #readCookie(): Record<string, any> | null {
         if (this.cache) return this.cache;
+        if (!this.req) return null;
 
         try {
-            const enc = this.req.cookies?.[this.cookieName];
-            if (!enc) return null;
-            const dec = this.#decrypt(enc);
-            const parsed = JSON.parse(dec);
-            this.cache = parsed;
-            return parsed;
+            const raw = this.req.cookies?.[this.cookieName];
+            if (!raw) return null;
+
+            const decrypted = this.#decrypt(raw);
+            return (this.cache = JSON.parse(decrypted));
         } catch {
             return null;
         }
@@ -125,18 +115,19 @@ class Cookie {
         data: object,
         options: Partial<CookieOptions> = {},
     ): boolean {
-        try {
-            const enc = this.#encrypt(JSON.stringify(data));
+        if (!this.res) return false;
 
+        try {
+            const encrypted = this.#encrypt(JSON.stringify(data));
             const config: CookieOptions = {
                 path: Common.env('COOKIE_PATH', '/'),
-                maxAge: parseInt(Common.env('COOKIE_EXPIRE', '86400')) * 1000,
+                maxAge: Number(Common.env('COOKIE_EXPIRE', '86400')) * 1000,
                 secure: Common.env('COOKIE_SECURE', 'false') === 'true',
                 httpOnly: Common.env('COOKIE_HTTP_ONLY', 'true') === 'true',
                 ...options,
             };
 
-            this.res.cookie(this.cookieName, enc, config);
+            this.res.cookie(this.cookieName, encrypted, config);
             this.cache = data;
             return true;
         } catch {
@@ -144,25 +135,27 @@ class Cookie {
         }
     }
 
-    static #encrypt(text: string): string {
+    static #encrypt(plain: string): string {
         const iv = crypto.randomBytes(16);
         const key = crypto.createHash('sha256').update(this.secret).digest();
         const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
         const encrypted = Buffer.concat([
-            cipher.update(text, 'utf8'),
+            cipher.update(plain, 'utf8'),
             cipher.final(),
         ]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
+        return `${iv.toString('hex')}:${encrypted.toString('hex')}`;
     }
 
-    static #decrypt(encrypted: string): string {
-        const [ivHex, encHex] = encrypted.split(':');
+    static #decrypt(enc: string): string {
+        const [ivHex, dataHex] = enc.split(':');
+        if (!ivHex || !dataHex) throw new Error('Invalid cookie format');
+
         const iv = Buffer.from(ivHex, 'hex');
-        const encryptedText = Buffer.from(encHex, 'hex');
+        const encrypted = Buffer.from(dataHex, 'hex');
         const key = crypto.createHash('sha256').update(this.secret).digest();
         const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
         const decrypted = Buffer.concat([
-            decipher.update(encryptedText),
+            decipher.update(encrypted),
             decipher.final(),
         ]);
         return decrypted.toString('utf8');
