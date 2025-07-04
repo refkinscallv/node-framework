@@ -9,7 +9,6 @@
  * @date 2025
  */
 
-import Database from '@core/typeorm';
 import {
     Repository as TypeOrmRepository,
     FindOptionsWhere,
@@ -19,32 +18,21 @@ import {
     ObjectLiteral,
     SelectQueryBuilder,
 } from 'typeorm';
+import Database from '@core/typeorm';
 import { isObject, isString, isNumber } from 'lodash';
 import { PaginateParams, PaginateResult } from '@type/core';
 import Paginate from '@core/paginate';
 
 export default abstract class Repository<T extends ObjectLiteral> {
     static entityClass: new () => any;
+
     protected static idKey: string = 'id';
 
-    public static get entity(): TypeOrmRepository<any> {
+    static get entity(): TypeOrmRepository<any> {
         if (!this.entityClass) {
             throw new Error('Missing entityClass in subclass');
         }
         return Database.instance.getRepository(this.entityClass);
-    }
-
-    private static normalizeRelations(relations?: string | string[]): string[] {
-        if (!relations) return [];
-
-        if (Array.isArray(relations)) {
-            return relations.map((r) => r.trim()).filter(Boolean);
-        }
-
-        return relations
-            .split(',')
-            .map((r) => r.trim())
-            .filter(Boolean);
     }
 
     static async pagination<T extends ObjectLiteral>(
@@ -54,133 +42,67 @@ export default abstract class Repository<T extends ObjectLiteral> {
         return Paginate.make(this.entity, params);
     }
 
-    static async all<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        relations: string | string[] = [],
-    ): Promise<T[]> {
-        return this.entity.find({
-            relations: this.normalizeRelations(relations),
-        });
+    static normalizeRelations(relations?: string | string[]): string[] {
+        if (!relations) return [];
+        if (Array.isArray(relations)) return relations.map(r => r.trim()).filter(Boolean);
+        return relations.split(',').map(r => r.trim()).filter(Boolean);
     }
 
-    static async by<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
+    static buildWhere(
         index: string | number | Record<string, any> | string[],
         value?: string | number | string[] | null,
-        relations: string | string[] = [],
-    ): Promise<T[]> {
-        const where = this.buildWhere(index, value);
-        if (!where) return [];
-        return this.entity.find({
-            where,
-            relations: this.normalizeRelations(relations),
-        });
-    }
-
-    private static buildWhere<T extends ObjectLiteral>(
-        index: string | number | Record<string, any> | string[],
-        value?: string | number | string[] | null,
-    ): FindOptionsWhere<T> | undefined {
+    ): Record<string, any> | undefined {
         if (Array.isArray(index)) {
             return Object.fromEntries(
                 index.map((key) => {
                     if (Array.isArray(value)) return [key, In(value)];
-                    if (isString(value) || isNumber(value))
-                        return [key, Like(`%${value}%`)];
+                    if (isString(value) || isNumber(value)) return [key, Like(`%${value}%`)];
                     return [key, value];
                 }),
-            ) as FindOptionsWhere<T>;
+            );
         }
 
         if (isObject(index)) {
             return Object.fromEntries(
                 Object.entries(index).map(([key, val]) => {
                     if (Array.isArray(val)) return [key, In(val)];
-                    if (isString(val) || isNumber(val))
-                        return [key, Like(`%${val}%`)];
+                    if (isString(val) || isNumber(val)) return [key, Like(`%${val}%`)];
                     return [key, val];
                 }),
-            ) as FindOptionsWhere<T>;
+            );
         }
 
         if (typeof index === 'string') {
-            return {
-                [index]: Array.isArray(value) ? In(value) : Like(`%${value}%`),
-            } as FindOptionsWhere<T>;
+            return { [index]: Array.isArray(value) ? In(value) : Like(`%${value}%`) };
         }
 
         return undefined;
     }
 
-    static async store<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        data: DeepPartial<T>,
-    ): Promise<T> {
-        const created = this.entity.create(data);
-        return this.entity.save(created);
+    static resolveCriteria(
+        criteria: string | number | Record<string, any>,
+    ): Record<string, any> {
+        return (typeof criteria === 'string' || typeof criteria === 'number')
+            ? { [this.idKey]: criteria }
+            : { ...criteria };
     }
 
-    static async bulkStore<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        data: DeepPartial<T>[],
+    static async all<T = any>(relations: string | string[] = []): Promise<T[]> {
+        return this.entity.find({ relations: this.normalizeRelations(relations) });
+    }
+
+    static async by<T = any>(
+        index: string | number | Record<string, any> | string[],
+        value?: string | number | string[] | null,
+        relations: string | string[] = [],
     ): Promise<T[]> {
-        const created = this.entity.create(data);
-        return this.entity.save(created);
+        const where = this.buildWhere(index, value);
+        if (!where) return [];
+        return this.entity.find({ where, relations: this.normalizeRelations(relations) });
     }
 
-    static async update<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        data: DeepPartial<T>,
-        criteria: number | FindOptionsWhere<T>,
-    ): Promise<T | null> {
-        const where = this.resolveCriteria<T>(criteria);
-        const existing = await this.entity.findOne({ where });
-        if (!existing) return null;
-        const merged = this.entity.merge(existing, data);
-        return this.entity.save(merged);
-    }
-
-    static async delete<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        criteria: number | FindOptionsWhere<T>,
-    ): Promise<boolean> {
-        const result = await this.entity.delete(
-            this.resolveCriteria<T>(criteria),
-        );
-        return result.affected !== 0;
-    }
-
-    static async softDelete<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        criteria: number | FindOptionsWhere<T>,
-    ): Promise<boolean> {
-        const result = await this.entity.softDelete(
-            this.resolveCriteria<T>(criteria),
-        );
-        return result.affected !== 0;
-    }
-
-    static async restore<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        criteria: number | FindOptionsWhere<T>,
-    ): Promise<boolean> {
-        const result = await this.entity.restore(
-            this.resolveCriteria<T>(criteria),
-        );
-        return result.affected !== 0;
-    }
-
-    private static resolveCriteria<T extends ObjectLiteral>(
-        criteria: number | FindOptionsWhere<T>,
-    ): FindOptionsWhere<T> {
-        return typeof criteria === 'number'
-            ? ({ [this.idKey]: criteria } as FindOptionsWhere<T>)
-            : criteria;
-    }
-
-    static async findOne<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        criteria: number | FindOptionsWhere<T>,
+    static async findOne<T = any>(
+        criteria: string | number | Record<string, any>,
         relations: string | string[] = [],
     ): Promise<T | null> {
         return this.entity.findOne({
@@ -189,43 +111,59 @@ export default abstract class Repository<T extends ObjectLiteral> {
         });
     }
 
-    static async findMany<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        criteria: FindOptionsWhere<T>,
+    static async findMany<T = any>(
+        criteria: Record<string, any>,
         relations: string | string[] = [],
     ): Promise<T[]> {
-        return this.entity.find({
-            where: criteria,
-            relations: this.normalizeRelations(relations),
-        });
+        return this.entity.find({ where: criteria, relations: this.normalizeRelations(relations) });
     }
 
-    static async exists<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        criteria: FindOptionsWhere<T>,
-    ): Promise<boolean> {
+    static async store<T = any>(data: DeepPartial<T>): Promise<T> {
+        return this.entity.save(this.entity.create(data));
+    }
+
+    static async bulkStore<T = any>(data: DeepPartial<T>[]): Promise<T[]> {
+        return this.entity.save(this.entity.create(data));
+    }
+
+    static async update<T = any>(
+        data: DeepPartial<T>,
+        criteria: string | number | Record<string, any>,
+    ): Promise<T | null> {
+        if (!data || Object.keys(data).length === 0) return null;
+        const where = this.resolveCriteria(criteria);
+        const result = await this.entity.update(where, data);
+        return result.affected !== 0 ? this.entity.findOne({ where }) : null;
+    }
+
+    static async delete(criteria: string | number | Record<string, any>): Promise<boolean> {
+        const result = await this.entity.delete(this.resolveCriteria(criteria));
+        return result.affected !== 0;
+    }
+
+    static async softDelete(criteria: string | number | Record<string, any>): Promise<boolean> {
+        const result = await this.entity.softDelete(this.resolveCriteria(criteria));
+        return result.affected !== 0;
+    }
+
+    static async restore(criteria: string | number | Record<string, any>): Promise<boolean> {
+        const result = await this.entity.restore(this.resolveCriteria(criteria));
+        return result.affected !== 0;
+    }
+
+    static async exists(criteria: Record<string, any>): Promise<boolean> {
         return (await this.entity.count({ where: criteria })) > 0;
     }
 
-    static async count<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        where?: FindOptionsWhere<T>,
-    ): Promise<number> {
+    static async count(where?: Record<string, any>): Promise<number> {
         return this.entity.count({ where });
     }
 
-    static findWithQueryBuilder<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        alias: string,
-    ): SelectQueryBuilder<T> {
+    static findWithQueryBuilder(alias: string): SelectQueryBuilder<any> {
         return this.entity.createQueryBuilder(alias);
     }
 
-    static async raw<T extends ObjectLiteral>(
-        this: typeof Repository<T>,
-        query: string,
-        params: any[] = [],
-    ): Promise<any> {
+    static async raw(query: string, params: any[] = []): Promise<any> {
         return this.entity.query(query, params);
     }
 }

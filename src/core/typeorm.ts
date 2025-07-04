@@ -59,7 +59,7 @@ class Database {
             console.log('[DATABASE] Connected successfully');
             console.log(`[DATABASE] Type: ${this.dbType}`);
 
-            const runSeeder = Common.env<string>('DB_SEEDER', 'off') === 'on';
+            const runSeeder = Common.env<string>('DB_SEED', 'off') === 'on';
             if (runSeeder) {
                 await this.runSeederSafely();
             }
