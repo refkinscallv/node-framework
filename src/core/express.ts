@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025
  */
 
@@ -72,13 +72,13 @@ class Express {
                   status: boolean;
                   code: number;
                   message: string;
-                  result: object | null;
-                  custom?: object;
+                  result: Record<string, any> | null;
+                  custom?: Record<string, any>;
               }
             | any,
         arg2?: number,
         arg3?: string,
-        arg4?: object | any[] | null,
+        arg4?: Record<string, any> | any[] | null,
         arg5?: Partial<Record<string, any>>,
     ): Response {
         const response =
@@ -98,7 +98,7 @@ class Express {
     public static view(
         res: Response,
         viewName: string,
-        locals: object = {},
+        locals: Record<string, any> = {},
         status: number = 200,
     ): Response {
         const data = {

@@ -1,6 +1,6 @@
 {
     "name": "framework",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "description": "A modular, opinionated, and lightweight backend framework for Node.js, built with TypeScript and powered by Express.js, TypeORM, and Socket.IO",
     "keywords": [
         "typescript",

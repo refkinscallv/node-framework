@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025
  */
 
@@ -112,7 +112,7 @@ class Cookie {
     }
 
     static #writeCookie(
-        data: object,
+        data: Record<string, any>,
         options: Partial<CookieOptions> = {},
     ): boolean {
         if (!this.res) return false;

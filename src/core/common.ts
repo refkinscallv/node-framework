@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025
  */
 
@@ -43,7 +43,7 @@ class Common {
         status = true,
         code = 200,
         message = '',
-        result: object | any[] | null = {},
+        result: Record<string, any> | any[] | null = {},
         custom: Partial<Record<string, any>> = {},
     ) {
         return { status, code, message, result, ...custom };

@@ -5,7 +5,7 @@
  * @description Lightweight modular TypeScript framework based on Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025
  */
 

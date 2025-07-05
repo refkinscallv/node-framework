@@ -5,7 +5,7 @@
  * @description A lightweight, opinionated, and modular TypeScript-based backend framework built on top of Express.js, TypeORM, Socket.IO
  * @author Refkinscallv
  * @repository https://github.com/refkinscallv/node-framework
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025
  */
 
@@ -14,7 +14,7 @@ import { validate } from 'class-validator';
 
 export default async function Validator<T extends object>(
     dtoClass: ClassConstructor<T>,
-    plain: object,
+    plain: Record<string, any>,
 ): Promise<
     | { valid: true; data: T }
     | {

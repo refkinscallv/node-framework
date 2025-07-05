@@ -3,7 +3,7 @@
 /**
  * @module socket
  * @description Socket.IO integration for node-framework
- * @version 3.0.0
+ * @version 3.1.0
  * @date 2025
  */
 
