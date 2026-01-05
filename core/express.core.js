@@ -89,6 +89,9 @@ module.exports = class Express {
             require('@app/routes/register.route')
             Routes.apply(this.router)
             this.app.use(this.router)
+            Routes.allRoutes().forEach((v, _) => {
+                Logger.debug('routes defined', `[${v.methods.map(mtd => mtd.trim()).join(', ')}] ${v.path}`)
+            })
         } catch (err) {
             Logger.set(err, 'express')
         }

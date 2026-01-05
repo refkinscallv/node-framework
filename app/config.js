@@ -11,10 +11,10 @@ module.exports = {
     // Application settings
     app: {
         production: false,
-        port: 3025,
-        url: 'http://localhost:3025',
-        name: 'Chat Application',
-        timezone: 'Asia/Jakarta',
+        port: 3030,
+        url: 'http://localhost:3030',
+        name: 'Node Framework',
+        timezone: 'UTC',
         log_dir: 'logs',
     },
 
