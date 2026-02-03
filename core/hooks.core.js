@@ -27,21 +27,27 @@ class Hooks {
      * @static
      */
     static async run(lifecycle) {
-        try {
-            Logger.info('hooks', `Running ${lifecycle} hooks...`)
+        Logger.info('hooks', `Running ${lifecycle} hooks...`)
 
-            // Get hooks for this lifecycle
-            const hooksToRun = this.hooks[lifecycle] || []
+        // Get hooks for this lifecycle
+        const hooksToRun = this.hooks[lifecycle] || []
 
-            // Execute each hook sequentially
-            for (const hook of hooksToRun) {
+        // Execute each hook sequentially
+        for (const hook of hooksToRun) {
+            try {
                 await hook()
+            } catch (err) {
+                Logger.set(err, 'hooks')
+                // For critical lifecycles (before, shutdown), propagate the error
+                if (lifecycle === 'before' || lifecycle === 'shutdown') {
+                    throw new Error(`Critical hook failed in ${lifecycle}: ${err.message}`)
+                }
+                // For 'after' hooks, log but continue
+                Logger.warn('hooks', `Hook failed in ${lifecycle}, continuing...`)
             }
-
-            Logger.info('hooks', `${lifecycle} hooks completed`)
-        } catch (err) {
-            Logger.set(err, 'hooks')
         }
+
+        Logger.info('hooks', `${lifecycle} hooks completed`)
     }
 
     /**

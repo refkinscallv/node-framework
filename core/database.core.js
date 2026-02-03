@@ -88,14 +88,32 @@ module.exports = class Database {
             return
         }
 
-        // Get all model files (*.model.js)
-        const files = fs.readdirSync(modelsPath).filter((file) => file.endsWith('.model.js'))
+        // Recursively find all model files
+        const findModelFiles = (dir) => {
+            let modelFiles = []
+            const items = fs.readdirSync(dir, { withFileTypes: true })
+
+            for (const item of items) {
+                const fullPath = path.join(dir, item.name)
+                if (item.isDirectory()) {
+                    // Recursively search subdirectories
+                    modelFiles = modelFiles.concat(findModelFiles(fullPath))
+                } else if (item.isFile() && item.name.endsWith('.model.js')) {
+                    modelFiles.push(fullPath)
+                }
+            }
+
+            return modelFiles
+        }
+
+        // Get all model files recursively
+        const modelFiles = findModelFiles(modelsPath)
 
         // Load each model file
-        for (const file of files) {
+        for (const filePath of modelFiles) {
             try {
                 // Require the model file
-                const model = require(path.join(modelsPath, file))
+                const model = require(filePath)
 
                 // Initialize the model with Sequelize instance
                 const modelInstance = model(this.sequelize, Sequelize.DataTypes)
@@ -105,7 +123,7 @@ module.exports = class Database {
 
                 Logger.info('database', `Model loaded: ${modelInstance.name}`)
             } catch (err) {
-                Logger.error('database', `Failed to load model ${file}: ${err.message}`)
+                Logger.error('database', `Failed to load model ${filePath}: ${err.message}`)
             }
         }
 
@@ -147,6 +165,10 @@ module.exports = class Database {
      * const users = await User.findAll()
      */
     static getModel(name) {
+        if (!this.sequelize) {
+            Logger.warn('database', 'Database not initialized, getModel() called before init()')
+            return undefined
+        }
         return this.models[name]
     }
 
@@ -161,6 +183,10 @@ module.exports = class Database {
      * await sequelize.query('SELECT * FROM users')
      */
     static getInstance() {
+        if (!this.sequelize) {
+            Logger.warn('database', 'Database not initialized, getInstance() called before init()')
+            return null
+        }
         return this.sequelize
     }
 
@@ -170,9 +196,9 @@ module.exports = class Database {
      * Should be called during application shutdown
      * @static
      */
-    static close() {
+    static async close() {
         if (this.sequelize) {
-            this.sequelize.close()
+            await this.sequelize.close()
             Logger.info('database', 'Database connection closed')
         }
     }

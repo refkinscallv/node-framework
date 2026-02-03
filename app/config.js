@@ -6,24 +6,26 @@
  */
 
 const path = require('path')
+const Env = require('@core/helpers/env.helper')
 
 module.exports = {
     // Application settings
     app: {
-        production: false,
-        port: 3030,
-        url: 'http://localhost:3030',
-        name: 'Node Framework',
-        timezone: 'UTC',
-        log_dir: 'logs',
+        production: Env.getBool('NODE_ENV', 'development') === 'production',
+        port: Env.getInt('APP_PORT', 3030),
+        url: Env.get('APP_URL', 'http://localhost:3030'),
+        name: Env.get('APP_NAME', 'Node Framework'),
+        timezone: Env.get('APP_TIMEZONE', 'UTC'),
+        log_dir: Env.get('LOG_DIR', 'logs'),
     },
+
 
     // Server configuration
     server: {
-        https: false,
+        https: Env.getBool('SERVER_HTTPS', false),
         ssl: {
-            cert: path.join(__dirname, '/path/to/ssl.cert'),
-            key: path.join(__dirname, '/path/to/ssl.key'),
+            cert: Env.get('SERVER_SSL_CERT_PATH', path.join(__dirname, '/path/to/ssl.cert')),
+            key: Env.get('SERVER_SSL_KEY_PATH', path.join(__dirname, '/path/to/ssl.key')),
         },
         options: {
             poweredBy: false,
@@ -70,10 +72,10 @@ module.exports = {
         },
         fileupload: {
             useTempFiles: true,
-            tempFileDir: path.join(__dirname, '../tmp/'),
+            tempFileDir: Env.get('UPLOAD_TEMP_DIR', path.join(__dirname, '../tmp/')),
             createParentPath: true,
             limits: {
-                fileSize: 50 * 1024 * 1024, // 50MB max file size
+                fileSize: Env.getInt('UPLOAD_MAX_SIZE', 50 * 1024 * 1024), // 50MB max file size
             },
             abortOnLimit: true,
             responseOnLimit: 'File size limit has been reached',
@@ -100,15 +102,15 @@ module.exports = {
 
     // Database configuration
     database: {
-        status: false,
-        dialect: 'mysql',
-        host: 'localhost',
-        port: 3306,
-        database: 'database',
-        username: 'root',
-        password: '',
-        logging: false,
-        timezone: '+07:00',
+        status: Env.getBool('DB_ENABLED', false),
+        dialect: Env.get('DB_DIALECT', 'mysql'),
+        host: Env.get('DB_HOST', 'localhost'),
+        port: Env.getInt('DB_PORT', 3306),
+        database: Env.get('DB_NAME', 'database'),
+        username: Env.get('DB_USERNAME', 'root'),
+        password: Env.get('DB_PASSWORD', ''),
+        logging: Env.getBool('DB_LOGGING', false),
+        timezone: Env.get('DB_TIMEZONE', '+07:00'),
         pool: {
             max: 5,
             min: 0,
@@ -120,29 +122,31 @@ module.exports = {
             underscored: true,
             freezeTableName: true,
         },
-        sync: true,
-        force: false,
-        alter: false,
+        sync: Env.getBool('DB_SYNC', true),
+        force: Env.getBool('DB_FORCE', false),
+        alter: Env.getBool('DB_ALTER', false),
     },
 
     // JWT configuration
     jwt: {
-        secret: 'your-secret-key-change-this-in-production',
-        expiresIn: '7d',
+        // WARNING: Change this secret in production!
+        // Use a strong, random secret key and store it in environment variables
+        secret: Env.get('JWT_SECRET', 'your-secret-key-change-this-in-production'),
+        expiresIn: Env.get('JWT_EXPIRES_IN', '7d'),
     },
 
     // Mailer configuration
     mailer: {
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        host: Env.get('MAIL_HOST', 'smtp.gmail.com'),
+        port: Env.getInt('MAIL_PORT', 587),
+        secure: Env.getBool('MAIL_SECURE', false),
         auth: {
-            user: 'your-email@gmail.com',
-            pass: 'your-app-password',
+            user: Env.get('MAIL_USER', 'your-email@gmail.com'),
+            pass: Env.get('MAIL_PASSWORD', 'your-app-password'),
         },
         from: {
-            name: 'Chat Application',
-            email: 'noreply@chatapp.com',
+            name: Env.get('MAIL_FROM_NAME', 'Node Framework'),
+            email: Env.get('MAIL_FROM_EMAIL', 'noreply@example.com'),
         },
     },
 }

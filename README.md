@@ -1,5 +1,17 @@
 # Node.js MVC Framework
 
+[![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)](https://github.com/refkinscallv/node-framework)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
+[![npm](https://img.shields.io/badge/npm-%3E%3D11.0.0-red.svg)](https://www.npmjs.com/)
+[![Express](https://img.shields.io/badge/express-4.18.2-lightgrey.svg)](https://expressjs.com/)
+[![Socket.IO](https://img.shields.io/badge/socket.io-4.6.0-black.svg)](https://socket.io/)
+[![Sequelize](https://img.shields.io/badge/sequelize-6.35.2-52B0E7.svg)](https://sequelizejs.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/refkinscallv/node-framework/graphs/commit-activity)
+
+> **Latest Update (v1.0.5)**: Bug fixes and stability improvements - Fixed critical race conditions, improved error handling, and enhanced model loading.
+
 A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequelize ORM, and real-time capabilities for building scalable web applications.
 
 ## Features
@@ -15,6 +27,8 @@ A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequel
 - **Security** - CORS, Helmet, Rate limiting
 - **Testing** - Jest testing framework
 - **Code Quality** - ESLint, Prettier, Husky
+- **Helper Classes** - Env, Url, Hash, Str, Arr utilities
+- **Environment Config** - .env support with type conversion
 
 ## Requirements
 
@@ -34,10 +48,11 @@ cd node-framework
 # Install dependencies
 npm install
 
-# Copy environment file (if exists)
+# Copy environment file
 cp .env.example .env
 
-# Configure your settings in app/config.js
+# Configure your environment variables in .env
+# Or configure settings in app/config.js
 ```
 
 ## Quick Start
@@ -322,6 +337,36 @@ npm run db:reset        # Reset database
 npm run logs:clear      # Clear log files
 ```
 
+## Helper Classes
+
+The framework provides utility classes for common tasks:
+
+```javascript
+const { Env, Url, Hash, Str, Arr } = require('@core/helpers')
+
+// Environment variables
+const port = Env.getInt('APP_PORT', 3000)
+const isDev = Env.isDevelopment()
+
+// URL generation
+const profileUrl = Url.to('users/profile')
+const apiUrl = Url.api('users')
+
+// Hashing
+const hashed = await Hash.make('password')
+const token = Hash.random(32)
+
+// String manipulation
+const slug = Str.slug('My Blog Post')
+const camel = Str.camelCase('hello world')
+
+// Array operations
+const unique = Arr.unique([1, 2, 2, 3])
+const names = Arr.pluck(users, 'name')
+```
+
+See [HELPERS.md](HELPERS.md) for complete documentation.
+
 ## Environment Variables
 
 Although the framework uses `app/config.js` for configuration, you can also use `.env` file with the `dotenv` package for sensitive data:
@@ -376,6 +421,8 @@ For issues and questions:
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for details.
+
+**Current Version**: 1.0.5 (2026-02-03)
 
 ---
 

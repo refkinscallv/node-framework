@@ -1,6 +1,6 @@
 {
     "name": "node-framework",
-    "version": "1.0.0",
+    "version": "1.0.5",
     "description": "A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequelize ORM, and real-time capabilities for building scalable web applications",
     "keywords": [
         "framework",

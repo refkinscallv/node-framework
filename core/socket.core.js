@@ -48,10 +48,20 @@ module.exports = class Socket {
     static #loadSockets() {
         try {
             // Load socket handlers from app/sockets/register.socket.js
-            require('@app/sockets/register.socket').register(this.io)
+            const socketRegister = require('@app/sockets/register.socket')
+            if (socketRegister && typeof socketRegister.register === 'function') {
+                socketRegister.register(this.io)
+                Logger.info('socket', 'Socket handlers registered successfully')
+            } else {
+                Logger.warn('socket', 'Socket register file found but no register function exported')
+            }
         } catch (err) {
-            Logger.warn('socket', 'No socket handlers registered or failed to load')
-            Logger.set(err, 'socket')
+            if (err.code === 'MODULE_NOT_FOUND') {
+                Logger.warn('socket', 'No socket handlers file found (app/sockets/register.socket.js)')
+            } else {
+                Logger.error('socket', `Failed to load socket handlers: ${err.message}`)
+                Logger.set(err, 'socket')
+            }
         }
     }
 

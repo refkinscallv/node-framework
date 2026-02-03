@@ -13,6 +13,47 @@ module.exports = class ErrorHandler {
      * @param {Object} app - Express application instance
      */
     static init(app) {
+        // Register 404 handler first
+        this.#register404Handler(app)
+
+        // Register global error handler last
+        this.#registerErrorHandler(app)
+    }
+
+    /**
+     * Register 404 Not Found handler
+     * @param {Object} app - Express application instance
+     * @private
+     */
+    static #register404Handler(app) {
+        app.use((req, res, next) => {
+            const status = 404
+            const message = 'Page Not Found'
+
+            // Check if it's an API request
+            if (req.xhr || req.path.startsWith('/api')) {
+                return res.status(status).json({
+                    success: false,
+                    message,
+                })
+            }
+
+            // Render 404 page
+            res.status(status).render('pages/error.page.ejs', {
+                title: `Error ${status}`,
+                status,
+                message,
+                error: {},
+            })
+        })
+    }
+
+    /**
+     * Register global error handler
+     * @param {Object} app - Express application instance
+     * @private
+     */
+    static #registerErrorHandler(app) {
         // Global error handler middleware
         app.use((err, req, res, next) => {
             // Log the error
@@ -37,28 +78,6 @@ module.exports = class ErrorHandler {
                 status,
                 message,
                 error: process.env.NODE_ENV === 'development' ? err : {},
-            })
-        })
-
-        // 404 Not Found handler
-        app.use((req, res, next) => {
-            const status = 404
-            const message = 'Page Not Found'
-
-            // Check if it's an API request
-            if (req.xhr || req.path.startsWith('/api')) {
-                return res.status(status).json({
-                    success: false,
-                    message,
-                })
-            }
-
-            // Render 404 page
-            res.status(status).render('pages/error.page.ejs', {
-                title: `Error ${status}`,
-                status,
-                message,
-                error: {},
             })
         })
     }

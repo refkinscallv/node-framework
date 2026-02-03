@@ -51,14 +51,16 @@ module.exports = class Server {
      */
     static listen(server, port) {
         return new Promise((resolve, reject) => {
-            server.listen(port, (err) => {
-                if (err) {
-                    Logger.set(err, 'server')
-                    reject(err)
-                } else {
-                    Logger.info('server', `Server listening on port ${port}`)
-                    resolve()
-                }
+            // Handle server errors
+            server.once('error', (err) => {
+                Logger.set(err, 'server')
+                reject(err)
+            })
+
+            // Start listening
+            server.listen(port, () => {
+                Logger.info('server', `Server listening on port ${port}`)
+                resolve()
             })
         })
     }

@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [1.0.5] - 2026-02-03
+
+### Fixed
+
+- **Critical**: Fixed race condition in graceful shutdown - properly await async operations
+- **Critical**: Fixed database connection not closing properly - made `Database.close()` async
+- **Error**: Fixed model loading to support subdirectories recursively
+- **Bug**: Fixed 404 handler middleware order - now registered before error handler
+- **Warning**: Improved error handling in hooks - critical errors now propagate properly
+- **Warning**: Routes loading errors now throw instead of silent failure
+- **Warning**: Enhanced socket loading error messages for better debugging
+- **Warning**: Added null checks to `Database.getModel()` and `Database.getInstance()`
+- **Warning**: Fixed server listen error handling using proper event listeners
+
+### Security
+
+- Added prominent security warning for JWT secret configuration
+- Recommended using environment variables for sensitive data
+
+### Documentation
+
+- Updated API documentation for `Database.close()` async behavior
+- Added breaking changes notice for async database methods
+
 ## [1.0.0] - 2026-01-04
 
 ### Added
@@ -103,4 +128,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **1.0.5** (2026-02-03) - Bug fixes and stability improvements
 - **1.0.0** (2026-01-04) - Initial release

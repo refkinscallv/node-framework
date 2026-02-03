@@ -90,10 +90,12 @@ await sequelize.query('SELECT * FROM users')
 Closes the database connection.
 
 ```javascript
-Database.close()
+await Database.close()
 ```
 
-**Returns:** `void`
+**Returns:** `Promise<void>`
+
+> **Note**: Since v1.0.5, this method is async and must be awaited.
 
 #### Properties
 
@@ -829,5 +831,28 @@ Routes.post('/register', async ({ req, res }) => {
 ```
 
 ---
+
+## Breaking Changes
+
+### Version 1.0.5
+
+#### Database.close() is now async
+
+The `Database.close()` method is now asynchronous and returns a Promise. You must await it:
+
+```javascript
+// Before (v1.0.0)
+Database.close()
+
+// After (v1.0.5+)
+await Database.close()
+```
+
+This change ensures database connections are properly closed before the application exits.
+
+---
+
+**Framework Version**: 1.0.5  
+**Last Updated**: 2026-02-03
 
 For more examples and detailed guides, see the [README.md](README.md).

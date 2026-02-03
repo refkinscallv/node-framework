@@ -74,25 +74,40 @@ module.exports = class Boot {
         const gracefulShutdown = async (signal) => {
             Logger.info('boot', `${signal} received, shutting down gracefully...`)
 
-            // Run shutdown hooks
-            await Hooks.run('shutdown')
+            try {
+                // Run shutdown hooks
+                await Hooks.run('shutdown')
 
-            // Close server
-            server.close(() => {
-                Logger.info('boot', 'Server closed')
-                Database.close()
+                // Close server and wait for it
+                await new Promise((resolve) => {
+                    server.close(() => {
+                        Logger.info('boot', 'Server closed')
+                        resolve()
+                    })
+                })
+
+                // Close database connection
+                await Database.close()
+
                 process.exit(0)
-            })
-
-            // Force shutdown after timeout
-            setTimeout(() => {
-                Logger.error('boot', 'Forced shutdown after timeout')
+            } catch (err) {
+                Logger.error('boot', `Error during shutdown: ${err.message}`)
                 process.exit(1)
-            }, 10000)
+            }
         }
 
         // Listen for termination signals
-        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
-        process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+        process.on('SIGTERM', () => {
+            gracefulShutdown('SIGTERM').catch((err) => {
+                Logger.error('boot', `Unhandled error in SIGTERM handler: ${err.message}`)
+                process.exit(1)
+            })
+        })
+        process.on('SIGINT', () => {
+            gracefulShutdown('SIGINT').catch((err) => {
+                Logger.error('boot', `Unhandled error in SIGINT handler: ${err.message}`)
+                process.exit(1)
+            })
+        })
     }
 }

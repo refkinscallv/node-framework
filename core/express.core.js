@@ -94,6 +94,7 @@ module.exports = class Express {
             })
         } catch (err) {
             Logger.set(err, 'express')
+            throw new Error(`Failed to load routes: ${err.message}`)
         }
     }
 }
