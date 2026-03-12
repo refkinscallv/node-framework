@@ -73,4 +73,22 @@ module.exports = class Socket {
     static getInstance() {
         return this.io
     }
+
+    /**
+     * Close Socket.IO server gracefully
+     * Should be called during application shutdown
+     * @returns {Promise<void>}
+     * @static
+     */
+    static async close() {
+        if (this.io) {
+            return new Promise((resolve) => {
+                this.io.close(() => {
+                    Logger.info('socket', 'Socket.IO server closed')
+                    this.io = null
+                    resolve()
+                })
+            })
+        }
+    }
 }

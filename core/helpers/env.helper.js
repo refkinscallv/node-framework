@@ -11,11 +11,14 @@ module.exports = class Env {
     /**
      * Get environment variable as string
      * @param {string} key - Environment variable key
-     * @param {string} defaultValue - Default value if not found
+     * @param {string} defaultValue - Default value if not set
      * @returns {string}
+     *
+     * FIX: Gunakan `?? defaultValue` agar nilai '' (empty string) tetap dikembalikan
+     * dan tidak di-override oleh defaultValue (bug lama: `||` menyebabkan '' → default)
      */
     static get(key, defaultValue = '') {
-        return process.env[key] || defaultValue
+        return process.env[key] !== undefined ? process.env[key] : defaultValue
     }
 
     /**
@@ -26,7 +29,9 @@ module.exports = class Env {
      */
     static getInt(key, defaultValue = 0) {
         const value = process.env[key]
-        return value ? parseInt(value, 10) : defaultValue
+        if (value === undefined || value === '') return defaultValue
+        const parsed = parseInt(value, 10)
+        return isNaN(parsed) ? defaultValue : parsed
     }
 
     /**
@@ -37,7 +42,9 @@ module.exports = class Env {
      */
     static getFloat(key, defaultValue = 0.0) {
         const value = process.env[key]
-        return value ? parseFloat(value) : defaultValue
+        if (value === undefined || value === '') return defaultValue
+        const parsed = parseFloat(value)
+        return isNaN(parsed) ? defaultValue : parsed
     }
 
     /**
@@ -48,7 +55,7 @@ module.exports = class Env {
      */
     static getBool(key, defaultValue = false) {
         const value = process.env[key]
-        if (!value) return defaultValue
+        if (value === undefined || value === '') return defaultValue
         return value.toLowerCase() === 'true' || value === '1'
     }
 
@@ -60,17 +67,33 @@ module.exports = class Env {
      */
     static getArray(key, defaultValue = []) {
         const value = process.env[key]
-        if (!value) return defaultValue
-        return value.split(',').map((item) => item.trim())
+        if (value === undefined || value === '') return defaultValue
+        return value.split(',').map((item) => item.trim()).filter(Boolean)
     }
 
     /**
-     * Check if environment variable exists
+     * Get environment variable as parsed JSON
+     * @param {string} key - Environment variable key
+     * @param {*} defaultValue - Default value if not found or parse fails
+     * @returns {*}
+     */
+    static getJson(key, defaultValue = null) {
+        const value = process.env[key]
+        if (value === undefined || value === '') return defaultValue
+        try {
+            return JSON.parse(value)
+        } catch {
+            return defaultValue
+        }
+    }
+
+    /**
+     * Check if environment variable exists (and is not empty)
      * @param {string} key - Environment variable key
      * @returns {boolean}
      */
     static has(key) {
-        return process.env.hasOwnProperty(key)
+        return Object.prototype.hasOwnProperty.call(process.env, key)
     }
 
     /**

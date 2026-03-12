@@ -128,9 +128,14 @@ module.exports = class Database {
         }
 
         // Associate models (handle relationships)
+        // FIX: Wrap tiap asosiasi secara individual agar satu model gagal tidak menghentikan yang lain
         Object.values(this.models).forEach((model) => {
-            if (model.associate) {
-                model.associate(this.models)
+            if (typeof model.associate === 'function') {
+                try {
+                    model.associate(this.models)
+                } catch (err) {
+                    Logger.error('database', `Failed to associate model ${model.name}: ${err.message}`)
+                }
             }
         })
 

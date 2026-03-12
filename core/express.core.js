@@ -77,6 +77,8 @@ module.exports = class Express {
             require('@app/http/middlewares/register.middleware').register(this.app)
         } catch (err) {
             Logger.set(err, 'express')
+            // FIX: Re-throw agar boot sequence gagal dengan jelas, bukan silent fail
+            throw new Error(`Failed to setup middlewares: ${err.message}`)
         }
     }
 

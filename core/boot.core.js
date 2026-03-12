@@ -45,6 +45,9 @@ module.exports = class Boot {
             // Create HTTP/HTTPS server
             const server = Server.create(Express.app)
 
+            // Apply server-level options (keepAliveTimeout etc)
+            Server.applyOptions(server)
+
             // Initialize Socket.IO
             Socket.init(server)
 
@@ -86,8 +89,10 @@ module.exports = class Boot {
                     })
                 })
 
-                // Close database connection
-                await Database.close()
+                // Close database connection (only if it was initialized)
+                if (config.database.status) {
+                    await Database.close()
+                }
 
                 process.exit(0)
             } catch (err) {

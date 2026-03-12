@@ -6,6 +6,66 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.0.0] - 2026-03-11
+
+### Added
+
+- **`BaseController.handle(fn)`** — Async error wrapper untuk controller methods. Eliminates repetitive try/catch blocks.
+- **`BaseController.paginated(res, items, meta, message)`** — Helper for paginated API responses.
+- **`BaseService.success(message, data)`** — Shortcut for 200 success response.
+- **`BaseService.created(message, data)`** — Shortcut for 201 created response.
+- **`BaseService.fail(message, code, data)`** — Generic error response shortcut.
+- **`BaseService.notFound(message)`** — Shortcut for 404 response.
+- **`BaseService.unauthorized(message)`** — Shortcut for 401 response.
+- **`BaseService.forbidden(message)`** — Shortcut for 403 response.
+- **`BaseService.conflict(message)`** — Shortcut for 409 response (duplicate data).
+- **`BaseService.validationFail(message, errors)`** — Shortcut for 422 response.
+- **`BaseService.serverError(message)`** — Shortcut for 500 response.
+- **`Env.getJson(key, defaultValue)`** — Parse JSON from environment variables.
+- **`Hash.hmac(value, secret, algorithm)`** — Create HMAC signature.
+- **`Str.isEmpty(str)`** — Check if string is empty or whitespace.
+- **`Str.padLeft(str, length, char)`** — Left-pad a string.
+- **`Str.padRight(str, length, char)`** — Right-pad a string.
+- **`Arr.compact(arr)`** — Remove falsy values from array.
+- **`Arr.sum(arr, key)`** — Sum values in array or by object key.
+- **`Mailer.sendRaw(to, subject, html)`** — Send raw HTML email without template file.
+- **`Socket.close()`** — Graceful Socket.IO shutdown method.
+- **`Server.applyOptions(server)`** — Apply `keepAliveTimeout`, `requestTimeout`, `headersTimeout` to server instance.
+- **`Server.listen(server, port, host)`** — Added optional `host` parameter (default: `0.0.0.0`).
+
+### Fixed
+
+- **`Env.get(key, defaultValue)`** — Bug: empty string values (`''`) were incorrectly replaced by defaultValue due to `||` operator. Now uses explicit `!== undefined` check.
+- **`Env.getInt(key, defaultValue)`** — Added `isNaN` guard to prevent returning `NaN` when env var is non-numeric.
+- **`Env.getFloat(key, defaultValue)`** — Added `isNaN` guard.
+- **`Env.getArray(key, defaultValue)`** — Added `filter(Boolean)` to remove empty strings from split result.
+- **`Env.has(key)`** — Fixed to use `Object.prototype.hasOwnProperty.call()` instead of `hasOwnProperty()` directly (ESLint-safe).
+- **`Str.camelCase(str)`** — Bug: `_` and `-` separators were not converted. `helloWorld` is now `helloWorld`, `hello_world` → `helloWorld`, `hello-world` → `helloWorld`.
+- **`Str.truncate(str)`** — Replaced deprecated `substr()` with `substring()`.
+- **`Arr.first(arr)`** — Bug: returned `undefined` silently on empty arrays. Now accepts `defaultValue` parameter.
+- **`Arr.last(arr)`** — Same fix as `first()`.
+- **`Arr.isEmpty(arr)`** — Bug: did not validate if input is actually an array. Non-array inputs now return `true`.
+- **`Arr.sortBy(arr, key, order)`** — Bug: equal values returned `-1` instead of `0`, causing unstable sort.
+- **`Arr.random(arr)`** — Now returns `null` on empty arrays instead of `undefined`.
+- **`Arr.wrap(value)`** — Now returns `[]` for `null` and `undefined` instead of `[null]` or `[undefined]`.
+- **`Hash.uuid()`** — Bug: `require('uuid')` was called inside the method on every invocation. Moved to top-level import.
+- **`Hash.uniqueId()`** — Same fix as `Hash.uuid()`: moved `require('uniqid')` to top-level.
+- **`database.core.js`** — Bug: `model.associate()` failure was silent. Each association is now individually wrapped in try/catch.
+- **`boot.core.js`** — Bug: `Database.close()` was called during shutdown even when `DB_ENABLED=false`. Now checks `config.database.status` before closing.
+- **`express.core.js`** — Bug: errors in `#middlewares()` setup were silently swallowed. Now re-throws properly so boot fails clearly.
+- **`mailer.core.js`** — Bug: no parameter validation in `send()`. Added validation for `to`, `subject`, `template`, and template file existence check.
+- **`server.core.js`** — Bug: invalid options (`poweredBy`, `maxHeaderSize`) were passed to `http.createServer()` — not valid Node.js HTTP server options. Removed entirely.
+- **`BaseController.validationError()`** — Changed status code from 400 to 422 (correct HTTP status for validation errors).
+- **`tests/unit/logger.test.js`** — Fixed: test was using global mocked Logger instead of real implementation. Added `jest.unmock()` and fixed async `done` callbacks to use `async/await`.
+
+### Changed
+
+- **`Str.snakeCase(str)`** — Improved regex to properly handle hyphen and camelCase inputs.
+- **`Str.kebabCase(str)`** — Improved regex to properly handle underscore and camelCase inputs.
+- **`Str.capitalize(str)`** — Added null/empty guard.
+
+---
+
 ## [1.0.5] - 2026-02-03
 
 ### Fixed
@@ -54,79 +114,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete documentation (README.md, API.md)
 - Example routes and configuration
 
-### Features
-
-- **Core Modules**:
-    - Boot: Application bootstrapper
-    - Database: Sequelize integration with auto model loading
-    - Express: Express app with middleware setup
-    - Logger: Winston-based logging system
-    - JWT: Token generation and verification
-    - Mailer: Email sending with EJS templates
-    - Hooks: Lifecycle event system
-    - Socket: Socket.IO integration
-    - Server: HTTP/HTTPS server management
-    - Runtime: Environment configuration
-    - ErrorHandler: Global error handling
-
-- **Security**:
-    - JWT authentication
-    - CORS protection
-    - Helmet security headers (ready to use)
-    - Rate limiting support (ready to use)
-    - Input validation with express-validator
-
-- **Developer Experience**:
-    - Hot reload with nodemon
-    - Code formatting with Prettier
-    - Linting with ESLint
-    - Pre-commit hooks with Husky
-    - Comprehensive test coverage
-    - Module aliases for clean imports
-
-### Configuration
-
-- Centralized configuration in `app/config.js`
-- Support for environment variables
-- Flexible database settings
-- Customizable CORS policies
-- File upload configuration
-- Socket.IO options
-- Mailer settings
-
-### Documentation
-
-- Complete README with quick start guide
-- API documentation with examples
-- Code comments in English
-- Test examples for all core modules
-
-### Development
-
-- Jest testing framework
-- Unit and integration tests
-- Test coverage reporting
-- Development and production scripts
-- Database migration scripts (skeleton)
-
-## [Unreleased]
-
-### Planned
-
-- Redis caching support
-- Rate limiting middleware
-- API versioning
-- Request validation decorators
-- CLI tool for scaffolding
-- Database migrations and seeders
-- Session management
-- OAuth integration
-- Admin panel
-- API documentation generator
-
 ---
 
 ## Version History
 
+- **2.0.0** (2026-03-11) - Major bug fixes, scalability & DX improvements, new helper methods
 - **1.0.5** (2026-02-03) - Bug fixes and stability improvements
 - **1.0.0** (2026-01-04) - Initial release

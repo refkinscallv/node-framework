@@ -1,38 +1,40 @@
 # Node.js MVC Framework
 
-[![Version](https://img.shields.io/badge/version-1.0.5-blue.svg)](https://github.com/refkinscallv/node-framework)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/refkinscallv/node-framework)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen.svg)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-%3E%3D11.0.0-red.svg)](https://www.npmjs.com/)
-[![Express](https://img.shields.io/badge/express-4.18.2-lightgrey.svg)](https://expressjs.com/)
-[![Socket.IO](https://img.shields.io/badge/socket.io-4.6.0-black.svg)](https://socket.io/)
-[![Sequelize](https://img.shields.io/badge/sequelize-6.35.2-52B0E7.svg)](https://sequelizejs.com/)
+[![Express](https://img.shields.io/badge/express-5.x-lightgrey.svg)](https://expressjs.com/)
+[![Socket.IO](https://img.shields.io/badge/socket.io-4.x-black.svg)](https://socket.io/)
+[![Sequelize](https://img.shields.io/badge/sequelize-6.x-52B0E7.svg)](https://sequelizejs.com/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/refkinscallv/node-framework/graphs/commit-activity)
 
-> **Latest Update (v1.0.5)**: Bug fixes and stability improvements - Fixed critical race conditions, improved error handling, and enhanced model loading.
+> **v2.0.0**: Major bug fixes, scalability & DX improvements — new `BaseController.handle()`, `BaseService` shortcuts, `Socket.close()`, env/str/arr/hash helper fixes, and more.
 
 A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequelize ORM, and real-time capabilities for building scalable web applications.
 
 ## Features
 
-- **Express.js** - Fast, unopinionated web framework
+- **Express.js** - Fast, unopinionated web framework (v5.x)
 - **Socket.IO** - Real-time bidirectional communication
 - **Sequelize ORM** - Promise-based ORM for SQL databases
 - **JWT Authentication** - Secure token-based authentication
-- **Email Support** - Built-in mailer with template support
+- **Email Support** - Built-in mailer with template and raw HTML support
 - **File Upload** - Express-fileupload integration
 - **EJS Templates** - Embedded JavaScript templating
-- **Logging** - Winston logger with daily rotation
+- **Logging** - Winston logger with file rotation
 - **Security** - CORS, Helmet, Rate limiting
 - **Testing** - Jest testing framework
 - **Code Quality** - ESLint, Prettier, Husky
 - **Helper Classes** - Env, Url, Hash, Str, Arr utilities
-- **Environment Config** - .env support with type conversion
+- **Environment Config** - .env support with type conversion + `getJson()`
+- **BaseController.handle()** - Async error wrapper, zero boilerplate try/catch
+- **BaseService shortcuts** - `success()`, `fail()`, `notFound()`, `conflict()` and more
 
 ## Requirements
 
-- Node.js >= 20.0.0
+- Node.js >= 24.0.0
 - npm >= 11.0.0
 - MySQL (if using database)
 
@@ -52,7 +54,6 @@ npm install
 cp .env.example .env
 
 # Configure your environment variables in .env
-# Or configure settings in app/config.js
 ```
 
 ## Quick Start
@@ -68,8 +69,6 @@ npm start
 npm run dev:debug
 ```
 
-Your application will be running at `http://localhost:3025`
-
 ## Project Structure
 
 ```
@@ -78,12 +77,12 @@ node-framework/
 │   ├── config.js              # Configuration file
 │   ├── hooks/                 # Application lifecycle hooks
 │   ├── http/                  # HTTP layer
-│   │   ├── controllers/       # Request handlers
+│   │   ├── controllers/       # Request handlers (extends BaseController)
 │   │   ├── middlewares/       # Custom middlewares
-│   │   └── validators/        # Input validation
-│   ├── models/                # Database models
+│   │   └── validators/        # Input validation (Zod)
+│   ├── models/                # Sequelize models (.model.js)
 │   ├── routes/                # Application routes
-│   ├── services/              # Business logic
+│   ├── services/              # Business logic (extends BaseService)
 │   └── sockets/               # Socket.IO handlers
 ├── core/                      # Framework core
 │   ├── boot.core.js          # Application bootstrapper
@@ -96,20 +95,24 @@ node-framework/
 │   ├── mailer.core.js        # Email sender
 │   ├── runtime.core.js       # Runtime configuration
 │   ├── server.core.js        # HTTP/HTTPS server
-│   └── socket.core.js        # Socket.IO configuration
+│   ├── socket.core.js        # Socket.IO configuration
+│   └── helpers/              # Utility helper classes
+│       ├── env.helper.js
+│       ├── str.helper.js
+│       ├── arr.helper.js
+│       ├── hash.helper.js
+│       └── url.helper.js
 ├── public/                    # Public assets
 │   ├── static/               # Static files (CSS, JS, images)
 │   └── views/                # EJS templates
-│       ├── pages/            # Page templates
-│       └── templates/        # Reusable templates
 ├── tests/                     # Test files
 │   ├── unit/                 # Unit tests
 │   └── integration/          # Integration tests
 ├── logs/                      # Application logs
 ├── tmp/                       # Temporary files (uploads)
 ├── index.js                   # Application entry point
-├── package.json              # Dependencies and scripts
-└── README.md                 # This file
+├── package.json
+└── README.md
 ```
 
 ## Configuration
@@ -123,7 +126,7 @@ app: {
     production: false,           // Production mode
     port: 3025,                 // Server port
     url: 'http://localhost:3025', // Base URL
-    name: 'Chat Application',   // App name
+    name: 'My App',             // App name
     timezone: 'Asia/Jakarta',   // Timezone
     log_dir: 'logs',           // Logs directory
 }
@@ -140,70 +143,101 @@ database: {
     database: 'database',
     username: 'root',
     password: '',
+    sync: true,                 // Auto-sync models
+    alter: false,               // Alter existing tables
     // ... more options
 }
-```
-
-### File Upload Configuration
-
-```javascript
-fileupload: {
-    useTempFiles: true,
-    tempFileDir: path.join(__dirname, '../tmp/'),
-    limits: {
-        fileSize: 50 * 1024 * 1024, // 50MB max
-    },
-    // ... more options
-}
-```
-
-## Routing
-
-Define routes in `app/routes/`:
-
-```javascript
-// app/routes/web.route.js
-const Routes = require('@refkinscallv/express-routing')
-
-Routes.get('/', ({ res }) => {
-    res.send('Hello World')
-})
-
-Routes.get('/users/:id', ({ req, res }) => {
-    res.json({ userId: req.params.id })
-})
 ```
 
 ## Controllers
 
-Create controllers in `app/http/controllers/`:
+Create controllers extending `BaseController` in `app/http/controllers/`:
 
 ```javascript
-// app/http/controllers/user/user.controller.js
-module.exports = class UserController {
-    static async index(req, res) {
-        // Handle request
+const BaseController = require('@app/http/controllers/base.controller')
+const UserService = require('@app/services/user.service')
+
+module.exports = class UserController extends BaseController {
+
+    // v2.0.0: handle() wraps async — no more manual try/catch!
+    static getAll = BaseController.handle(async (req, res) => {
+        const result = await UserService.getAll()
+        return BaseController.json(res, result)
+    })
+
+    static store = BaseController.handle(async (req, res) => {
+        const result = await UserService.store(req.body)
+        return BaseController.json(res, result)
+    })
+}
+```
+
+**Available BaseController methods:**
+
+| Method | Status | Description |
+|--------|--------|-------------|
+| `handle(fn)` | ✨ New | Async wrapper, errors auto-forwarded to Express error handler |
+| `json(res, output)` | - | Universal JSON response (pass BaseService output directly) |
+| `success(res, msg, data)` | - | 200 response |
+| `created(res, msg, data)` | - | 201 response |
+| `error(res, msg, code)` | - | Error response |
+| `validationError(res, v)` | - | 422 validation error |
+| `notFound(res, msg)` | - | 404 response |
+| `unauthorized(res, msg)` | - | 401 response |
+| `forbidden(res, msg)` | - | 403 response |
+| `serverError(res, msg)` | - | 500 response |
+| `paginated(res, items, meta)` | ✨ New | Paginated response with meta |
+| `noContent(res)` | - | 204 response |
+
+## Services
+
+Create services extending `BaseService` in `app/services/`:
+
+```javascript
+const BaseService = require('@app/services/base.service')
+const Database = require('@core/database.core')
+
+module.exports = class UserService extends BaseService {
+    static async getAll() {
+        const User = Database.getModel('User')
+        const users = await User.findAll()
+        return this.success('Users retrieved', users)
     }
 
-    static async store(req, res) {
-        // Handle request
+    static async store(body) {
+        const User = Database.getModel('User')
+        const existing = await User.findOne({ where: { email: body.email } })
+        if (existing) return this.conflict('Email already registered')
+
+        const user = await User.create(body)
+        return this.created('User created', user)
     }
 }
 ```
 
+**Available BaseService methods (v2.0.0):**
+
+| Method | Code | Description |
+|--------|------|-------------|
+| `json(status, code, msg, data, custom)` | - | Universal builder |
+| `success(msg, data)` | ✨ 200 | Success |
+| `created(msg, data)` | ✨ 201 | Created |
+| `fail(msg, code, data)` | ✨ 400 | Generic error |
+| `notFound(msg)` | ✨ 404 | Not found |
+| `unauthorized(msg)` | ✨ 401 | Unauthorized |
+| `forbidden(msg)` | ✨ 403 | Forbidden |
+| `conflict(msg)` | ✨ 409 | Conflict / duplicate |
+| `validationFail(msg, errors)` | ✨ 422 | Validation error |
+| `serverError(msg)` | ✨ 500 | Server error |
+
 ## Models
 
-Define models in `app/models/`:
+Define models in `app/models/` (file must end with `.model.js`):
 
 ```javascript
-// app/models/user/user.model.js
+// app/models/user.model.js
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
-        id: {
-            type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -213,10 +247,29 @@ module.exports = (sequelize, DataTypes) => {
             unique: true,
             allowNull: false,
         },
+    }, {
+        tableName: 'users'
     })
 
     return User
 }
+```
+
+## Routing
+
+Define routes in `app/routes/`:
+
+```javascript
+// app/routes/api.route.js
+const Routes = require('@refkinscallv/express-routing')
+const UserController = require('@app/http/controllers/user.controller')
+
+Routes.group('api', () => {
+    Routes.group('users', () => {
+        Routes.get('/', [UserController, 'getAll'])
+        Routes.post('/', [UserController, 'store'])
+    })
+})
 ```
 
 ## Socket.IO
@@ -227,8 +280,6 @@ Register socket handlers in `app/sockets/register.socket.js`:
 module.exports = {
     register(io) {
         io.on('connection', (socket) => {
-            console.log('Client connected')
-
             socket.on('message', (data) => {
                 io.emit('message', data)
             })
@@ -237,40 +288,40 @@ module.exports = {
 }
 ```
 
-## File Upload
-
-Handle file uploads in your routes/controllers:
+## Helper Classes
 
 ```javascript
-Routes.post('/upload', ({ req, res }) => {
-    if (!req.files || !req.files.file) {
-        return res.status(400).json({ error: 'No file uploaded' })
-    }
+const { Env, Url, Hash, Str, Arr } = require('@core/helpers')
 
-    const file = req.files.file
-    const uploadPath = __dirname + '/uploads/' + file.name
+// Environment variables (v2.0.0: fixed empty-string bug)
+const port = Env.getInt('APP_PORT', 3000)
+const config = Env.getJson('APP_CONFIG', {})   // NEW: parse JSON env var
+const isDev = Env.isDevelopment()
 
-    file.mv(uploadPath, (err) => {
-        if (err) return res.status(500).json({ error: err })
-        res.json({ message: 'File uploaded!' })
-    })
-})
+// URL generation
+const profileUrl = Url.to('users/profile')
+const apiUrl = Url.api('users')
+
+// Hashing
+const hashed = await Hash.make('password')
+const token = Hash.random(32)
+const id = Hash.uuid()
+const sig = Hash.hmac(data, secret)     // NEW: HMAC signature
+
+// String manipulation (v2.0.0: fixed camelCase, +isEmpty/padLeft/padRight)
+const slug = Str.slug('My Blog Post')
+const camel = Str.camelCase('hello_world')  // FIX: now handles _ and -
+const empty = Str.isEmpty('  ')             // NEW: true
+const padded = Str.padLeft('42', 5, '0')    // NEW: '00042'
+
+// Array operations (v2.0.0: fixed first/last empty array, +compact/sum)
+const first = Arr.first([], 'default')      // FIX: returns 'default' not undefined
+const last = Arr.last([1,2,3])
+const clean = Arr.compact([0, 1, null, 2])  // NEW: [1, 2]
+const total = Arr.sum([{price: 10}, {price: 20}], 'price') // NEW: 30
 ```
 
-## Middleware
-
-Register custom middlewares in `app/http/middlewares/register.middleware.js`:
-
-```javascript
-module.exports = {
-    register(app) {
-        app.use((req, res, next) => {
-            // Your middleware logic
-            next()
-        })
-    },
-}
-```
+See [HELPERS.md](HELPERS.md) for complete documentation.
 
 ## Hooks
 
@@ -279,19 +330,14 @@ Use hooks for lifecycle events in `app/hooks/register.hook.js`:
 ```javascript
 module.exports = {
     register(Hooks) {
-        // Before initialization
         Hooks.register('before', async () => {
-            console.log('Before initialization')
+            // Before initialization
         })
-
-        // After initialization
         Hooks.register('after', async () => {
-            console.log('After initialization')
+            // After initialization
         })
-
-        // On shutdown
         Hooks.register('shutdown', async () => {
-            console.log('Cleaning up...')
+            // Cleanup on shutdown
         })
     },
 }
@@ -303,94 +349,31 @@ module.exports = {
 # Run all tests
 npm test
 
-# Run tests in watch mode
-npm run test:watch
-
 # Run unit tests only
 npm run test:unit
 
-# Run integration tests only
-npm run test:integration
+# Run in watch mode
+npm run test:watch
 ```
 
 ## Scripts
 
 ```bash
-# Development
 npm run dev              # Start with nodemon
 npm run dev:debug        # Start with debugger
-
-# Production
-npm start               # Start application
-
-# Code Quality
-npm run lint            # Run ESLint
-npm run format          # Format code with Prettier
-npm run format:check    # Check code formatting
-
-# Database
-npm run db:migrate      # Run migrations
-npm run db:seed         # Run seeders
-npm run db:reset        # Reset database
-
-# Utilities
-npm run logs:clear      # Clear log files
-```
-
-## Helper Classes
-
-The framework provides utility classes for common tasks:
-
-```javascript
-const { Env, Url, Hash, Str, Arr } = require('@core/helpers')
-
-// Environment variables
-const port = Env.getInt('APP_PORT', 3000)
-const isDev = Env.isDevelopment()
-
-// URL generation
-const profileUrl = Url.to('users/profile')
-const apiUrl = Url.api('users')
-
-// Hashing
-const hashed = await Hash.make('password')
-const token = Hash.random(32)
-
-// String manipulation
-const slug = Str.slug('My Blog Post')
-const camel = Str.camelCase('hello world')
-
-// Array operations
-const unique = Arr.unique([1, 2, 2, 3])
-const names = Arr.pluck(users, 'name')
-```
-
-See [HELPERS.md](HELPERS.md) for complete documentation.
-
-## Environment Variables
-
-Although the framework uses `app/config.js` for configuration, you can also use `.env` file with the `dotenv` package for sensitive data:
-
-```env
-NODE_ENV=development
-PORT=3025
-DB_HOST=localhost
-DB_PORT=3306
-DB_NAME=database
-DB_USER=root
-DB_PASS=
-JWT_SECRET=your-secret-key
+npm start                # Production start
+npm run lint             # Run ESLint
+npm run format           # Format with Prettier
+npm run logs:clear       # Clear log files
 ```
 
 ## Security
 
 - Use strong JWT secrets in production
-- Enable HTTPS in production
+- Enable HTTPS in production (`SERVER_HTTPS=true`)
 - Configure CORS appropriately
 - Use environment variables for sensitive data
-- Keep dependencies updated
 - Enable rate limiting for APIs
-- Validate and sanitize user inputs
 
 ## Contributing
 
@@ -411,18 +394,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Email: refkinscallv@gmail.com
 - GitHub: [@refkinscallv](https://github.com/refkinscallv)
 
-## Support
-
-For issues and questions:
-
-- GitHub Issues: [Issues](https://github.com/refkinscallv/node-framework/issues)
-- Email: refkinscallv@gmail.com
-
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for details.
 
-**Current Version**: 1.0.5 (2026-02-03)
+**Current Version**: 2.0.0 (2026-03-11)
 
 ---
 

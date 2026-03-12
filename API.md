@@ -1,4 +1,4 @@
-# Framework API Documentation
+# Framework API Documentation v2.0.0
 
 Complete API reference for the Node.js MVC Framework.
 
@@ -16,6 +16,9 @@ Complete API reference for the Node.js MVC Framework.
     - [Server](#server)
     - [Runtime](#runtime)
     - [ErrorHandler](#errorhandler)
+- [App Layer](#app-layer)
+    - [BaseController](#basecontroller)
+    - [BaseService](#baseservice)
 
 ---
 
@@ -95,7 +98,7 @@ await Database.close()
 
 **Returns:** `Promise<void>`
 
-> **Note**: Since v1.0.5, this method is async and must be awaited.
+> **Note**: Since v2.0.0, `Database.close()` is only called during shutdown if `config.database.status` is `true`.
 
 #### Properties
 
@@ -316,20 +319,38 @@ Mailer.init()
 
 Sends an email using an EJS template.
 
+> **v2.0.0**: Validates `to`, `subject`, `template` before processing. Throws descriptive errors instead of propagating nodemailer errors.
+
 ```javascript
-await Mailer.send('user@example.com', 'Welcome to Our App', 'welcome', { username: 'John Doe' })
+await Mailer.send('user@example.com', 'Welcome!', 'welcome', { username: 'John' })
+```
+
+**Parameters:**
+
+- `to` (string): Recipient email — **required**, throws if empty
+- `subject` (string): Email subject — **required**, throws if empty
+- `template` (string): Template name (without `.email.ejs`) — **required**, throws if file not found
+- `data` (Object): Data to pass to template
+
+**Returns:** `Promise<Object>` - Email info
+
+**Template Location:** `public/views/templates/email/{template}.email.ejs`
+
+##### `Mailer.sendRaw(to, subject, html)` ✨ New in v2.0.0
+
+Sends raw HTML email without requiring a template file.
+
+```javascript
+await Mailer.sendRaw('user@example.com', 'Hello!', '<h1>Hello World</h1>')
 ```
 
 **Parameters:**
 
 - `to` (string): Recipient email
 - `subject` (string): Email subject
-- `template` (string): Template name (without .email.ejs extension)
-- `data` (Object): Data to pass to template
+- `html` (string): Raw HTML content
 
 **Returns:** `Promise<Object>` - Email info
-
-**Template Location:** `public/views/templates/email/{template}.email.ejs`
 
 ##### `Mailer.verify()`
 
@@ -422,6 +443,16 @@ io.emit('broadcast', { message: 'Hello everyone' })
 
 **Returns:** Socket.IO Server instance
 
+##### `Socket.close()` ✨ New in v2.0.0
+
+Gracefully closes the Socket.IO server. Should be called during application shutdown.
+
+```javascript
+await Socket.close()
+```
+
+**Returns:** `Promise<void>`
+
 #### Properties
 
 ##### `Socket.io`
@@ -444,6 +475,8 @@ HTTP/HTTPS server creation and management.
 
 Creates an HTTP or HTTPS server.
 
+> **v2.0.0 Fix**: No longer passes invalid options to `http.createServer()`. Options like `poweredBy` are not valid Node.js HTTP server options.
+
 ```javascript
 const Server = require('@core/server.core')
 const server = Server.create(expressApp)
@@ -455,20 +488,36 @@ const server = Server.create(expressApp)
 
 **Returns:** HTTP/HTTPS Server instance
 
-##### `Server.listen(server, port)`
+##### `Server.listen(server, port, host)`
 
 Starts the server listening on specified port.
 
 ```javascript
 await Server.listen(server, 3025)
+await Server.listen(server, 3025, '127.0.0.1') // Bind to specific host
 ```
 
 **Parameters:**
 
 - `server` (Object): Server instance
 - `port` (number): Port number
+- `host` (string, optional): Host to bind (default: `0.0.0.0`)
 
 **Returns:** `Promise<void>`
+
+##### `Server.applyOptions(server)` ✨ New in v2.0.0
+
+Applies server-level timeout settings from `config.server.options`.
+
+```javascript
+const server = Server.create(app)
+Server.applyOptions(server) // Sets keepAliveTimeout, requestTimeout, headersTimeout
+```
+
+**Reads from config:**
+- `config.server.options.keepAliveTimeout`
+- `config.server.options.requestTimeout`
+- `config.server.options.headersTimeout`
 
 ---
 
@@ -511,6 +560,189 @@ ErrorHandler.init(app)
 - `app` (Object): Express application instance
 
 **Returns:** `void`
+
+---
+
+## App Layer
+
+### BaseController
+
+Base class for all controllers. Provides standardized JSON response methods.
+
+#### Methods
+
+##### `BaseController.handle(fn)` ✨ New in v2.0.0
+
+Async error wrapper. Eliminates repetitive try/catch in controller methods.
+
+```javascript
+const BaseController = require('@app/http/controllers/base.controller')
+
+// Before: manual try/catch
+static async getAll(req, res) {
+    try {
+        const result = await UserService.getAll()
+        return BaseController.json(res, result)
+    } catch (err) {
+        return BaseController.serverError(res, err.message)
+    }
+}
+
+// After: use handle()
+static getAll = BaseController.handle(async (req, res) => {
+    const result = await UserService.getAll()
+    return BaseController.json(res, result)
+})
+```
+
+Errors are automatically forwarded to Express error handler via `next(err)`.
+
+##### `BaseController.json(res, output)`
+
+Universal JSON response builder. Can accept a `BaseService.json()` output object directly.
+
+```javascript
+const result = await UserService.getAll()
+return BaseController.json(res, result) // Reads status/code/message/data from result
+```
+
+##### `BaseController.success(res, message, data, code)`
+
+200 success response.
+
+##### `BaseController.created(res, message, data)`
+
+201 created response.
+
+##### `BaseController.error(res, message, code, data)`
+
+Error response.
+
+##### `BaseController.validationError(res, validation)`
+
+422 validation error response.
+
+##### `BaseController.notFound(res, message)`
+
+404 response.
+
+##### `BaseController.unauthorized(res, message)`
+
+401 response.
+
+##### `BaseController.forbidden(res, message)`
+
+403 response.
+
+##### `BaseController.serverError(res, message)`
+
+500 response.
+
+##### `BaseController.paginated(res, items, meta, message)` ✨ New in v2.0.0
+
+Paginated response with meta information.
+
+```javascript
+return BaseController.paginated(res, users, {
+    total: 100,
+    page: 1,
+    limit: 10,
+    totalPages: 10
+})
+```
+
+##### `BaseController.noContent(res)`
+
+204 no content response.
+
+---
+
+### BaseService
+
+Base class for all services. Provides standardized response object builders.
+
+#### Methods
+
+##### `BaseService.json(status, code, message, data, custom)`
+
+Universal response builder. Returns an object compatible with `BaseController.json()`.
+
+```javascript
+return this.json(true, 200, 'Success', data)
+```
+
+##### `BaseService.success(message, data)` ✨ New in v2.0.0
+
+Shortcut for 200 success.
+
+```javascript
+return this.success('Users retrieved', users)
+```
+
+##### `BaseService.created(message, data)` ✨ New in v2.0.0
+
+Shortcut for 201 created.
+
+```javascript
+return this.created('User created', newUser)
+```
+
+##### `BaseService.fail(message, code, data)` ✨ New in v2.0.0
+
+Generic error shortcut (default 400).
+
+```javascript
+return this.fail('Bad request')
+return this.fail('Payment required', 402)
+```
+
+##### `BaseService.notFound(message)` ✨ New in v2.0.0
+
+Shortcut for 404.
+
+```javascript
+return this.notFound('User not found')
+```
+
+##### `BaseService.unauthorized(message)` ✨ New in v2.0.0
+
+Shortcut for 401.
+
+```javascript
+return this.unauthorized('Invalid token')
+```
+
+##### `BaseService.forbidden(message)` ✨ New in v2.0.0
+
+Shortcut for 403.
+
+```javascript
+return this.forbidden('Access denied')
+```
+
+##### `BaseService.conflict(message)` ✨ New in v2.0.0
+
+Shortcut for 409 (duplicate data).
+
+```javascript
+return this.conflict('Email already registered')
+```
+
+##### `BaseService.validationFail(message, errors)` ✨ New in v2.0.0
+
+Shortcut for 422 with errors array.
+
+```javascript
+return this.validationFail('Validation error', [{ field: 'email', message: 'Invalid' }])
+```
+
+##### `BaseService.serverError(message)` ✨ New in v2.0.0
+
+Shortcut for 500.
+
+```javascript
+return this.serverError('Database error')
+```
 
 ---
 
@@ -834,11 +1066,27 @@ Routes.post('/register', async ({ req, res }) => {
 
 ## Breaking Changes
 
+### Version 2.0.0
+
+#### `server.core.js` — HTTP options no longer passed to createServer()
+
+Previously, `config.server.options` was passed directly to `http.createServer()`. These options (`poweredBy`, `maxHeaderSize`, etc.) are NOT valid Node.js HTTP server options. They are now discarded. Server-level timeouts (`keepAliveTimeout`, `requestTimeout`, `headersTimeout`) must be applied via `Server.applyOptions(server)` (called automatically by Boot).
+
+#### `BaseController.validationError()` — Status changed to 422
+
+```javascript
+// Before (v1.0.5): returned 400
+// After (v2.0.0): returns 422 (correct HTTP status for validation errors)
+BaseController.validationError(res, validation) // → 422 Unprocessable Entity
+```
+
+---
+
 ### Version 1.0.5
 
 #### Database.close() is now async
 
-The `Database.close()` method is now asynchronous and returns a Promise. You must await it:
+The `Database.close()` method is asynchronous and returns a Promise:
 
 ```javascript
 // Before (v1.0.0)
@@ -848,11 +1096,9 @@ Database.close()
 await Database.close()
 ```
 
-This change ensures database connections are properly closed before the application exits.
-
 ---
 
-**Framework Version**: 1.0.5  
-**Last Updated**: 2026-02-03
+**Framework Version**: 2.0.0  
+**Last Updated**: 2026-03-11
 
 For more examples and detailed guides, see the [README.md](README.md).

@@ -8,15 +8,14 @@
 module.exports = class Str {
     /**
      * Convert string to camelCase
+     * FIX: Handle _, -, dan space sebagai separator (sebelumnya hanya space)
      * @param {string} str - Input string
      * @returns {string}
      */
     static camelCase(str) {
         return str
-            .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
-                return index === 0 ? word.toLowerCase() : word.toUpperCase()
-            })
-            .replace(/\s+/g, '')
+            .replace(/[-_\s]+(.)/g, (_, char) => char.toUpperCase())
+            .replace(/^(.)/, (char) => char.toLowerCase())
     }
 
     /**
@@ -26,10 +25,9 @@ module.exports = class Str {
      */
     static snakeCase(str) {
         return str
-            .replace(/\W+/g, ' ')
-            .split(/ |\B(?=[A-Z])/)
-            .map((word) => word.toLowerCase())
-            .join('_')
+            .replace(/[-\s]+/g, '_')
+            .replace(/([a-z])([A-Z])/g, '$1_$2')
+            .toLowerCase()
     }
 
     /**
@@ -39,10 +37,9 @@ module.exports = class Str {
      */
     static kebabCase(str) {
         return str
-            .replace(/\W+/g, ' ')
-            .split(/ |\B(?=[A-Z])/)
-            .map((word) => word.toLowerCase())
-            .join('-')
+            .replace(/[_\s]+/g, '-')
+            .replace(/([a-z])([A-Z])/g, '$1-$2')
+            .toLowerCase()
     }
 
     /**
@@ -52,7 +49,7 @@ module.exports = class Str {
      */
     static titleCase(str) {
         return str.replace(/\w\S*/g, (txt) => {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+            return txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase()
         })
     }
 
@@ -64,7 +61,8 @@ module.exports = class Str {
      * @returns {string}
      */
     static truncate(str, length = 100, end = '...') {
-        if (str.length <= length) return str
+        if (!str || str.length <= length) return str
+        // FIX: gunakan substring() — substr() sudah deprecated
         return str.substring(0, length - end.length) + end
     }
 
@@ -132,6 +130,7 @@ module.exports = class Str {
      * @returns {string}
      */
     static capitalize(str) {
+        if (!str) return str
         return str.charAt(0).toUpperCase() + str.slice(1)
     }
 
@@ -152,5 +151,36 @@ module.exports = class Str {
      */
     static repeat(str, times) {
         return str.repeat(times)
+    }
+
+    /**
+     * Check if string is empty or only whitespace
+     * @param {string} str - Input string
+     * @returns {boolean}
+     */
+    static isEmpty(str) {
+        return !str || str.trim().length === 0
+    }
+
+    /**
+     * Pad string on the left
+     * @param {string} str - Input string
+     * @param {number} length - Target length
+     * @param {string} char - Padding character
+     * @returns {string}
+     */
+    static padLeft(str, length, char = ' ') {
+        return String(str).padStart(length, char)
+    }
+
+    /**
+     * Pad string on the right
+     * @param {string} str - Input string
+     * @param {number} length - Target length
+     * @param {string} char - Padding character
+     * @returns {string}
+     */
+    static padRight(str, length, char = ' ') {
+        return String(str).padEnd(length, char)
     }
 }
