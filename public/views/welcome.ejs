@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Framework</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── TOKENS ── */
+        :root {
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #080810;
+            --bg-2: #0e0e1a;
+            --surface: #12121f;
+            --surface-2: #1a1a2e;
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(255,255,255,0.14);
+            --text: #f0f0f8;
+            --text-2: #8888aa;
+            --text-3: #44446a;
+            --accent: #6b5ce7;
+            --accent-light: #8b7ff0;
+            --accent-bg: rgba(107,92,231,0.1);
+            --accent-border: rgba(107,92,231,0.25);
+            --green: #1ec9a0;
+            --amber: #f0a500;
+            --red: #e8526b;
+            --code-bg: #0a0a16;
+            --shadow: rgba(0,0,0,0.6);
+            --nav-bg: rgba(8,8,16,0.88);
+            --toggle-bg: #1a1a2e;
+        }
+
+        [data-theme="light"] {
+            --bg: #fafafa;
+            --bg-2: #f4f4f8;
+            --surface: #ffffff;
+            --surface-2: #f0f0f6;
+            --border: rgba(0,0,0,0.08);
+            --border-hover: rgba(0,0,0,0.16);
+            --text: #111128;
+            --text-2: #6666880;
+            --text-3: #aaaacc;
+            --accent: #6b5ce7;
+            --accent-light: #5245d4;
+            --accent-bg: rgba(107,92,231,0.07);
+            --accent-border: rgba(107,92,231,0.2);
+            --green: #0da87e;
+            --amber: #d48a00;
+            --red: #d63f57;
+            --code-bg: #f0f0f8;
+            --shadow: rgba(0,0,0,0.12);
+            --nav-bg: rgba(250,250,250,0.9);
+            --toggle-bg: #e8e8f0;
+            --text-2: #666688;
+        }
+
+        /* ── RESET ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .mono { font-family: 'DM Mono', monospace; }
+
+        /* ── SUBTLE BG GRID ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 64px 64px;
+            pointer-events: none;
+            z-index: 0;
+            transition: background var(--transition);
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+            padding: 7px;
+            transition: transform 0.2s ease;
+        }
+
+        .logo:hover .logo-mark { transform: rotate(90deg); }
+
+        .logo-mark span {
+            background: white;
+            border-radius: 1.5px;
+        }
+
+        .logo-mark span:nth-child(2),
+        .logo-mark span:nth-child(3) { opacity: 0.5; }
+
+        .logo-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.01em;
+            transition: color var(--transition);
+        }
+
+        .version-pill {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--accent-bg);
+            color: var(--accent);
+            border: 1px solid var(--accent-border);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            margin-left: auto;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--text-2);
+            text-decoration: none;
+            transition: color 0.2s;
+            letter-spacing: 0.01em;
+        }
+
+        .nav-links a:hover { color: var(--text); }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--toggle-bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--text-2);
+            flex-shrink: 0;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        .theme-toggle svg { width: 15px; height: 15px; }
+        .theme-toggle .icon-sun { display: none; }
+        .theme-toggle .icon-moon { display: block; }
+        [data-theme="light"] .theme-toggle .icon-sun { display: block; }
+        [data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+        .nav-github {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-2);
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-github:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        /* Mobile nav toggle */
+        .mobile-menu-btn {
+            display: none;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            cursor: pointer;
+            color: var(--text-2);
+            transition: all 0.2s;
+        }
+
+        .mobile-menu-btn:hover { color: var(--text); border-color: var(--border-hover); }
+
+        /* ── CONTENT ── */
+        .content { position: relative; z-index: 1; }
+
+        /* ── HERO ── */
+        .hero {
+            min-height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 24px 60px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 14px 6px 10px;
+            font-family: 'DM Mono', monospace;
+            font-size: 11.5px;
+            color: var(--text-2);
+            margin-bottom: 40px;
+            animation: fadeDown 0.5s ease both;
+            transition: background var(--transition), border-color var(--transition), color var(--transition);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: statusPulse 2.5s ease infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hero-title {
+            font-size: clamp(42px, 8vw, 88px);
+            font-weight: 300;
+            line-height: 1.0;
+            letter-spacing: -0.04em;
+            margin-bottom: 24px;
+            animation: fadeUp 0.6s 0.1s ease both;
+            color: var(--text);
+            transition: color var(--transition);
+        }
+
+        .hero-title strong {
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 60%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            max-width: 520px;
+            font-size: 16px;
+            font-weight: 300;
+            color: var(--text-2);
+            line-height: 1.7;
+            margin-bottom: 40px;
+            animation: fadeUp 0.6s 0.2s ease both;
+            transition: color var(--transition);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 64px;
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'DM Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 11px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(107,92,231,0.3);
+        }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--text-2);
+            font-family: 'DM Mono', monospace;
+            font-size: 12.5px;
+            font-weight: 500;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        /* Stats strip */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 560px;
+            animation: fadeUp 0.6s 0.4s ease both;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .stat {
+            background: var(--surface);
+            padding: 20px 16px;
+            text-align: center;
+            transition: background var(--transition);
+        }
+
+        .stat-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 22px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-2);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-weight: 400;
+            transition: color var(--transition);
+        }
+
+        /* ── SECTION ── */
+        section { padding: 100px 24px; }
+
+        .section-inner { max-width: 1100px; margin: 0 auto; }
+
+        .section-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: block;
+            transition: color var(--transition);
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 500;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            margin-bottom: 16px;
+            color: var(--text);
+            transition: color var(--transition);
+        }
+
+        .section-desc {
+            font-size: 15px;
+            font-weight: 300;
+            color: var(--text-2);
+            max-width: 480px;
+            line-height: 1.7;
+            transition: color var(--transition);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            transition: background var(--transition);
+        }
+
+        /* ── FEATURES ── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 56px;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 32px 28px;
+            transition: background var(--transition);
+        }
+
+        .feature-card:hover { background: var(--surface-2); }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--accent-bg);
+            border: 1px solid var(--accent-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: var(--accent);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .feature-icon svg { width: 16px; height: 16px; }
+
+        .feature-title {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+            transition: color var(--transition);
+        }
+
+        .feature-desc {
+            font-size: 13.5px;
+            font-weight: 300;
+            color: var(--text-2);
+            line-height: 1.65;
+            transition: color var(--transition);
+        }
+
+        .feature-desc code {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            background: var(--accent-bg);
+            padding: 1px 5px;
+            border-radius: 4px;
+            transition: background var(--transition);
+        }
+
+        /* ── QUICKSTART ── */
+        .quickstart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: start;
+            margin-top: 56px;
+        }
+
+        .steps { display: flex; flex-direction: column; gap: 0; }
+
+        .step {
+            display: flex;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            transition: border-color var(--transition);
+        }
+
+        .step:first-child { padding-top: 0; }
+        .step:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .step-num {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--text-3);
+            width: 20px;
+            flex-shrink: 0;
+            padding-top: 1px;
+            transition: color var(--transition);
+        }
+
+        .step-body { flex: 1; }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+            transition: color var(--transition);
+        }
+
+        .step-cmd {
+            font-family: 'DM Mono', monospace;
+            font-size: 12.5px;
+            color: var(--green);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 7px;
+            display: block;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            font-family: 'DM Mono', monospace;
+            font-size: 12.5px;
+            line-height: 1.75;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .code-block + .code-block { margin-top: 16px; }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .dot { width: 9px; height: 9px; border-radius: 50%; }
+
+        .code-filename {
+            font-size: 11px;
+            color: var(--text-2);
+            margin-left: 4px;
+            transition: color var(--transition);
+        }
+
+        .code-body {
+            padding: 20px 20px;
+            overflow-x: auto;
+        }
+
+        pre { margin: 0; white-space: pre; }
+
+        .c { color: var(--text-3); }
+        .k { color: var(--accent-light); }
+        .s { color: var(--amber); }
+        .f { color: var(--green); }
+
+        /* ── STACK ── */
+        .stack-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 48px;
+        }
+
+        .stack-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--text-2);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 7px 13px;
+            transition: all 0.2s;
+            cursor: default;
+        }
+
+        .stack-pill:hover {
+            border-color: var(--accent-border);
+            color: var(--text);
+            background: var(--accent-bg);
+        }
+
+        .stack-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.6;
+        }
+
+        /* ── CHANGELOG ── */
+        .changelog { display: flex; flex-direction: column; gap: 0; margin-top: 56px; }
+
+        .cl-item {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 32px;
+            padding: 28px 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+            transition: border-color var(--transition);
+        }
+
+        .cl-item:last-child { border-bottom: none; }
+
+        .cl-meta { display: flex; flex-direction: column; gap: 6px; }
+
+        .cl-version {
+            font-family: 'DM Mono', monospace;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text);
+            transition: color var(--transition);
+        }
+
+        .cl-date {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+            transition: color var(--transition);
+        }
+
+        .cl-badge {
+            display: inline-flex;
+            align-items: center;
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--green);
+            background: rgba(30,201,160,0.1);
+            border: 1px solid rgba(30,201,160,0.2);
+            border-radius: 4px;
+            padding: 2px 7px;
+            width: fit-content;
+        }
+
+        .cl-desc {
+            font-size: 14px;
+            font-weight: 300;
+            color: var(--text-2);
+            line-height: 1.7;
+            padding-top: 2px;
+            transition: color var(--transition);
+        }
+
+        .cl-desc code {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            background: var(--accent-bg);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            padding: 32px 24px;
+            border-top: 1px solid var(--border);
+            transition: border-color var(--transition);
+        }
+
+        .footer-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--text-3);
+            transition: color var(--transition);
+        }
+
+        .footer-right {
+            font-size: 12px;
+            font-family: 'DM Mono', monospace;
+            color: var(--text-3);
+            transition: color var(--transition);
+        }
+
+        .footer-right a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .footer-right a:hover { opacity: 0.75; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .features-grid { grid-template-columns: 1fr 1fr; }
+            .quickstart-grid { grid-template-columns: 1fr; gap: 40px; }
+            .nav-links { display: none; }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: var(--nav-bg);
+                border-bottom: 1px solid var(--border);
+                padding: 16px 24px;
+                gap: 16px;
+                backdrop-filter: blur(20px);
+                z-index: 99;
+            }
+
+            .mobile-menu-btn { display: flex; }
+        }
+
+        @media (max-width: 620px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .stats-strip { grid-template-columns: repeat(2, 1fr); }
+            .cl-item { grid-template-columns: 1fr; gap: 8px; }
+            section { padding: 72px 20px; }
+            .hero { padding: 60px 20px 48px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAV ── -->
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="logo">
+                <div class="logo-mark">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+                <span class="logo-name">Node Framework</span>
+                <span class="version-pill mono">v2.1.0</span>
+            </a>
+
+            <div class="nav-links" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#quickstart">Quick Start</a>
+                <a href="#stack">Stack</a>
+                <a href="#changelog">Changelog</a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <!-- Moon -->
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <!-- Sun -->
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                </button>
+
+                <a href="https://github.com/refkinscallv/node-framework" target="_blank" class="nav-github">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                    GitHub
+                </a>
+
+                <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── HERO ── -->
+    <section class="hero content">
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            v2.1.0 — Live & Stable
+        </div>
+
+        <h1 class="hero-title">
+            <strong>Node Framework</strong><br>
+            Built for Scale.
+        </h1>
+
+        <p class="hero-desc">
+            An opinionated MVC framework for Node.js. Express 5, Socket.IO, Sequelize ORM, JWT auth, and real-time capabilities — wired together so you ship faster.
+        </p>
+
+        <div class="hero-actions">
+            <a href="#quickstart" class="btn-primary">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Get Started
+            </a>
+            <a href="https://github.com/refkinscallv/node-framework" target="_blank" class="btn-ghost">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                View on GitHub
+            </a>
+        </div>
+
+        <div class="stats-strip">
+            <div class="stat">
+                <div class="stat-num" style="color: var(--accent);">5.x</div>
+                <div class="stat-label">Express</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" style="color: var(--green);">4.x</div>
+                <div class="stat-label">Socket.IO</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" style="color: var(--amber);">6.x</div>
+                <div class="stat-label">Sequelize</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" style="color: var(--red);">JWT</div>
+                <div class="stat-label">Auth</div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── FEATURES ── -->
+    <section id="features" class="content">
+        <div class="section-inner">
+            <span class="section-tag">Features</span>
+            <h2 class="section-title">Everything you need,<br>nothing you don't.</h2>
+            <p class="section-desc">Carefully selected, thoughtfully integrated. Every piece of the stack earns its place.</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    </div>
+                    <div class="feature-title">Express 5.x</div>
+                    <p class="feature-desc">Next-gen Express with async error handling, improved routing, and zero boilerplate via <code>BaseController.handle()</code>.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <div class="feature-title">Real-Time Socket.IO</div>
+                    <p class="feature-desc">Bidirectional WebSocket communication built-in. Register handlers in <code>app/sockets/</code> and you're live.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                    </div>
+                    <div class="feature-title">Sequelize ORM</div>
+                    <p class="feature-desc">Promise-based ORM with auto-sync and model registration. Drop a <code>.model.js</code> file and go.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div class="feature-title">JWT + Refresh Tokens</div>
+                    <p class="feature-desc">Advanced JWT security with refresh tokens, issuer/audience validation, and auto-generated secrets via setup script.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div class="feature-title">Built-in Mailer</div>
+                    <p class="feature-desc">Send emails with EJS templates or raw HTML. Winston-powered rotating logs keep diagnostics clean in both Dev and Prod.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <div class="feature-title">Helper Utilities</div>
+                    <p class="feature-desc"><code>Env</code>, <code>Url</code>, <code>Hash</code>, <code>Str</code>, <code>Arr</code> — production-grade helpers with new methods in every release.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <div class="feature-title">Security First</div>
+                    <p class="feature-desc">CORS, Helmet, and rate limiting configured out of the box. HTTPS support with a single environment flag.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </div>
+                    <div class="feature-title">Testing Ready</div>
+                    <p class="feature-desc">Jest configured with unit and integration test directories. ESLint + Prettier + Husky for consistent code quality.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <div class="feature-title">Lifecycle Hooks</div>
+                    <p class="feature-desc">Register <code>before</code>, <code>after</code>, and <code>shutdown</code> hooks for fine-grained app lifecycle control.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── QUICKSTART ── -->
+    <section id="quickstart" class="content">
+        <div class="section-inner">
+            <span class="section-tag">Quick Start</span>
+            <h2 class="section-title">Zero to running<br>in 4 commands.</h2>
+            <p class="section-desc">The setup script handles dependencies, copies your <code style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); background: var(--accent-bg); padding: 1px 5px; border-radius: 4px;">.env</code>, and generates strong JWT secrets automatically.</p>
+
+            <div class="quickstart-grid">
+                <div class="steps">
+                    <div class="step">
+                        <span class="step-num">01</span>
+                        <div class="step-body">
+                            <div class="step-title">Clone the repository</div>
+                            <code class="step-cmd">git clone https://github.com/refkinscallv/node-framework.git</code>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">02</span>
+                        <div class="step-body">
+                            <div class="step-title">Navigate into the project</div>
+                            <code class="step-cmd">cd node-framework</code>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">03</span>
+                        <div class="step-body">
+                            <div class="step-title">Install & auto-configure</div>
+                            <code class="step-cmd">npm run setup</code>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">04</span>
+                        <div class="step-body">
+                            <div class="step-title">Start in development mode</div>
+                            <code class="step-cmd">npm run dev</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="dot" style="background:#ff5f57;"></div>
+                            <div class="dot" style="background:#ffbd2e;"></div>
+                            <div class="dot" style="background:#28ca41;"></div>
+                            <span class="code-filename">user.controller.js</span>
+                        </div>
+                        <div class="code-body">
+<pre><span class="k">const</span> BaseController = <span class="f">require</span>(<span class="s">'@app/http/controllers/base'</span>)
+<span class="k">const</span> UserService = <span class="f">require</span>(<span class="s">'@app/services/user'</span>)
+
+<span class="k">module</span>.exports = <span class="k">class</span> UserController
+  <span class="k">extends</span> BaseController {
+
+  <span class="c">// No try/catch — handle() wraps it</span>
+  <span class="k">static</span> getAll = BaseController.<span class="f">handle</span>(
+    <span class="k">async</span> (req, res) => {
+      <span class="k">const</span> result = <span class="k">await</span> UserService.<span class="f">getAll</span>()
+      <span class="k">return</span> BaseController.<span class="f">json</span>(res, result)
+    }
+  )
+
+  <span class="k">static</span> store = BaseController.<span class="f">handle</span>(
+    <span class="k">async</span> (req, res) => {
+      <span class="k">const</span> result = <span class="k">await</span> UserService.<span class="f">store</span>(req.body)
+      <span class="k">return</span> BaseController.<span class="f">json</span>(res, result)
+    }
+  )
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="dot" style="background:#ff5f57;"></div>
+                            <div class="dot" style="background:#ffbd2e;"></div>
+                            <div class="dot" style="background:#28ca41;"></div>
+                            <span class="code-filename">user.service.js</span>
+                        </div>
+                        <div class="code-body">
+<pre><span class="k">static</span> <span class="k">async</span> <span class="f">store</span>(body) {
+  <span class="k">const</span> User = Database.<span class="f">getModel</span>(<span class="s">'User'</span>)
+  <span class="k">const</span> existing = <span class="k">await</span> User.<span class="f">findOne</span>(
+    { where: { email: body.email } }
+  )
+  <span class="k">if</span> (existing)
+    <span class="k">return</span> <span class="k">this</span>.<span class="f">conflict</span>(<span class="s">'Email already registered'</span>)
+
+  <span class="k">const</span> user = <span class="k">await</span> User.<span class="f">create</span>(body)
+  <span class="k">return</span> <span class="k">this</span>.<span class="f">created</span>(<span class="s">'User created'</span>, user)
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── STACK ── -->
+    <section id="stack" class="content">
+        <div class="section-inner">
+            <span class="section-tag">Tech Stack</span>
+            <h2 class="section-title">The stack under the hood.</h2>
+            <p class="section-desc">Handpicked, battle-tested tools that work together without friction.</p>
+
+            <div class="stack-grid">
+                <span class="stack-pill"><span class="stack-dot"></span>Express 5.x</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Socket.IO 4.x</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Sequelize 6.x</span>
+                <span class="stack-pill"><span class="stack-dot"></span>JWT + Refresh</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Nodemailer</span>
+                <span class="stack-pill"><span class="stack-dot"></span>EJS Templates</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Winston Logger</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Zod Validation</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Jest Testing</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Helmet</span>
+                <span class="stack-pill"><span class="stack-dot"></span>CORS</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Rate Limiting</span>
+                <span class="stack-pill"><span class="stack-dot"></span>File Upload</span>
+                <span class="stack-pill"><span class="stack-dot"></span>ESLint + Prettier</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Husky</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Node.js >= 24</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── CHANGELOG ── -->
+    <section id="changelog" class="content">
+        <div class="section-inner">
+            <span class="section-tag">Changelog</span>
+            <h2 class="section-title">Version history.</h2>
+
+            <div class="changelog">
+                <div class="cl-item">
+                    <div class="cl-meta">
+                        <span class="cl-version">v2.1.0</span>
+                        <span class="cl-badge">Latest</span>
+                        <span class="cl-date">2026-04-25</span>
+                    </div>
+                    <p class="cl-desc">JWT refresh tokens, CLI setup script, core stability tests, logger Dev/Prod optimizations.</p>
+                </div>
+
+                <div class="cl-item">
+                    <div class="cl-meta">
+                        <span class="cl-version">v2.0.0</span>
+                        <span class="cl-date">2026-03-11</span>
+                    </div>
+                    <p class="cl-desc">Major bug fixes, scalability improvements, new helper methods — <code>compact</code>, <code>sum</code>, <code>getJson</code> — and BaseService shortcut responses.</p>
+                </div>
+
+                <div class="cl-item">
+                    <div class="cl-meta">
+                        <span class="cl-version">v1.0.5</span>
+                        <span class="cl-date">2026-02-03</span>
+                    </div>
+                    <p class="cl-desc">Bug fixes and stability improvements.</p>
+                </div>
+
+                <div class="cl-item">
+                    <div class="cl-meta">
+                        <span class="cl-version">v1.0.0</span>
+                        <span class="cl-date">2026-01-04</span>
+                    </div>
+                    <p class="cl-desc">Initial release. Express, Socket.IO, Sequelize, JWT, EJS, Logger, Helpers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <div style="width:20px;height:20px;background:var(--accent);border-radius:5px;display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:5px;flex-shrink:0;">
+                    <span style="background:white;border-radius:1px;opacity:1;"></span>
+                    <span style="background:white;border-radius:1px;opacity:0.5;"></span>
+                    <span style="background:white;border-radius:1px;opacity:0.5;"></span>
+                    <span style="background:white;border-radius:1px;opacity:1;"></span>
+                </div>
+                Node Framework — MIT License
+            </div>
+            <div class="footer-right">
+                Made with care by <a href="https://github.com/refkinscallv" target="_blank">Refkinscallv</a>
+                &nbsp;·&nbsp;
+                <a href="mailto:refkinscallv@gmail.com">refkinscallv@gmail.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        const toggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Persist preference
+        const saved = localStorage.getItem('nf-theme');
+        if (saved) html.setAttribute('data-theme', saved);
+
+        toggle.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('nf-theme', next);
+        });
+
+        // Mobile nav
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+
+        menuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+
+        // Close mobile nav on link click
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    window.scrollTo({ top: target.offsetTop - 72, behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Scroll-triggered fade-in for feature cards
+        const cards = document.querySelectorAll('.feature-card, .cl-item, .step');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.style.opacity = '1';
+                    e.target.style.transform = 'translateY(0)';
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.08 });
+
+        cards.forEach((card, i) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(14px)';
+            card.style.transition = `opacity 0.45s ease ${i * 0.04}s, transform 0.45s ease ${i * 0.04}s, background 0.3s`;
+            observer.observe(card);
+        });
+
+        // Active nav highlight
+        const sections = document.querySelectorAll('section[id]');
+        const navAs = document.querySelectorAll('.nav-links a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(s => {
+                if (window.scrollY >= s.offsetTop - 100) current = s.id;
+            });
+            navAs.forEach(a => {
+                a.style.color = a.getAttribute('href') === `#${current}`
+                    ? 'var(--text)'
+                    : 'var(--text-2)';
+            });
+        }, { passive: true });
+    </script>
+</body>
+</html>

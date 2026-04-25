@@ -3,5 +3,7 @@
 const Routes = require('@refkinscallv/express-routing')
 
 Routes.get('/', ({ res }) => {
-    res.send('Hello World')
+    res.render('welcome', {
+        version: '2.1.0'
+    })
 })
