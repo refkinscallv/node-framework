@@ -1,6 +1,6 @@
 {
     "name": "node-framework",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequelize ORM, and real-time capabilities for building scalable web applications",
     "keywords": [
         "framework",
@@ -39,6 +39,7 @@
     "type": "commonjs",
     "main": "index.js",
     "scripts": {
+        "setup": "node core/helpers/setup.js && npm i",
         "start": "node index.js",
         "dev": "nodemon index.js --ignore public/ --ignore app/views/",
         "dev:debug": "nodemon --inspect index.js",

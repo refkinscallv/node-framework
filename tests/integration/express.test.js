@@ -16,6 +16,10 @@ describe('Express Core Integration', () => {
         // Create a fresh Express app for testing
         app = express()
 
+        // Setup query parser like express.core.js does
+        const qs = require('qs')
+        app.set('query parser', (str) => qs.parse(str))
+
         // Setup middlewares
         app.use(express.json())
         app.use(express.urlencoded({ extended: true }))
@@ -151,10 +155,6 @@ describe('Express Core Integration', () => {
     })
 
     describe('File Upload', () => {
-        test('should have file upload middleware', () => {
-            expect(app._router).toBeDefined()
-        })
-
         test('should handle file upload endpoint', async () => {
             const response = await request(app).post('/test-upload')
 

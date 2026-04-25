@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.1.0] - 2026-04-25
+
+### Added
+
+- **`JWT.signRefresh()`** & **`JWT.verifyRefresh()`** — Support for refresh tokens.
+- **JWT Security** — Added `issuer` and `audience` support for tokens based on configuration.
+- **Setup Script** — Added `npm run setup` command to easily initialize the project, copy `.env.example`, and generate random JWT keys securely.
+- **Core Tests** — Added comprehensive unit tests for `errorHandler`, `server`, `socket`, `hooks`, and `mailer` core modules.
+
+### Changed
+
+- **`logger.core.js`** — Optimized logging to only create file transports in `production` environment, saving I/O overhead in `development` where only console logs are shown.
+
+### Fixed
+
+- **`express.core.js`** — Added graceful handling (try-catch) when loading custom middlewares and routes to prevent crashes with `MODULE_NOT_FOUND` if the default files are missing.
+
+---
+
 ## [2.0.0] - 2026-03-11
 
 ### Added
@@ -118,6 +137,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **2.1.0** (2026-04-25) - JWT Refresh tokens, Setup script, Logger optimizations, Core tests
 - **2.0.0** (2026-03-11) - Major bug fixes, scalability & DX improvements, new helper methods
 - **1.0.5** (2026-02-03) - Bug fixes and stability improvements
 - **1.0.0** (2026-01-04) - Initial release

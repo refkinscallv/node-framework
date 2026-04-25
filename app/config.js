@@ -132,7 +132,11 @@ module.exports = {
         // WARNING: Change this secret in production!
         // Use a strong, random secret key and store it in environment variables
         secret: Env.get('JWT_SECRET', 'your-secret-key-change-this-in-production'),
-        expiresIn: Env.get('JWT_EXPIRES_IN', '7d'),
+        expiresIn: Env.get('JWT_EXPIRES_IN', '1h'),
+        refreshSecret: Env.get('JWT_REFRESH_SECRET', 'your-refresh-secret-key-change-this-in-production'),
+        refreshExpiresIn: Env.get('JWT_REFRESH_EXPIRES_IN', '7d'),
+        issuer: Env.get('JWT_ISSUER', 'node-framework'),
+        audience: Env.get('JWT_AUDIENCE', 'node-framework-clients'),
     },
 
     // Mailer configuration

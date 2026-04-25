@@ -1,6 +1,6 @@
 # Node.js MVC Framework
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/refkinscallv/node-framework)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/refkinscallv/node-framework)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen.svg)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-%3E%3D11.0.0-red.svg)](https://www.npmjs.com/)
@@ -10,7 +10,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/refkinscallv/node-framework/graphs/commit-activity)
 
-> **v2.0.0**: Major bug fixes, scalability & DX improvements — new `BaseController.handle()`, `BaseService` shortcuts, `Socket.close()`, env/str/arr/hash helper fixes, and more.
+> **v2.1.0**: Advanced JWT security (Refresh tokens, Issuer/Audience), CLI setup script (`npm run setup`), Logger optimizations for Dev/Prod, and core stability updates.
 
 A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequelize ORM, and real-time capabilities for building scalable web applications.
 
@@ -19,7 +19,7 @@ A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequel
 - **Express.js** - Fast, unopinionated web framework (v5.x)
 - **Socket.IO** - Real-time bidirectional communication
 - **Sequelize ORM** - Promise-based ORM for SQL databases
-- **JWT Authentication** - Secure token-based authentication
+- **JWT Authentication** - Secure token-based authentication with refresh tokens
 - **Email Support** - Built-in mailer with template and raw HTML support
 - **File Upload** - Express-fileupload integration
 - **EJS Templates** - Embedded JavaScript templating
@@ -47,13 +47,13 @@ git clone https://github.com/refkinscallv/node-framework.git
 # Navigate to directory
 cd node-framework
 
-# Install dependencies
-npm install
+# Install dependencies and setup environment
+npm run setup
 
-# Copy environment file
-cp .env.example .env
-
-# Configure your environment variables in .env
+# The setup script automatically:
+# 1. Installs dependencies
+# 2. Copies .env.example to .env
+# 3. Generates strong, random JWT secrets for your environment
 ```
 
 ## Quick Start
@@ -99,6 +99,7 @@ node-framework/
 │   └── helpers/              # Utility helper classes
 │       ├── env.helper.js
 │       ├── str.helper.js
+│       ├── setup.helper.js
 │       ├── arr.helper.js
 │       ├── hash.helper.js
 │       └── url.helper.js
@@ -398,7 +399,12 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 See [CHANGELOG.md](CHANGELOG.md) for details.
 
-**Current Version**: 2.0.0 (2026-03-11)
+## Version History
+
+- **2.1.0** (2026-04-25) - JWT refresh tokens, Setup script, Core tests, Logger optimizations
+- **2.0.0** (2026-03-11) - Major bug fixes, scalability & DX improvements, new helper methods
+- **1.0.5** (2026-02-03) - Bug fixes and stability improvements
+- **1.0.0** (2026-01-04) - Initial release
 
 ---
 

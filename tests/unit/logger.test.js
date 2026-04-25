@@ -16,6 +16,13 @@ describe('Logger Core', () => {
     beforeAll(() => {
         // Initialize logger
         Logger.init()
+        
+        // Silence console output during tests to prevent log pollution
+        if (Logger.logger) {
+            Logger.logger.transports.forEach((t) => {
+                t.silent = true
+            })
+        }
     })
 
     afterAll(() => {
@@ -72,6 +79,18 @@ describe('Logger Core', () => {
     })
 
     describe('Log Files', () => {
+        beforeAll(() => {
+            const config = require('../../app/config')
+            config.app.production = true
+            Logger.init()
+        })
+
+        afterAll(() => {
+            const config = require('../../app/config')
+            config.app.production = false
+            Logger.init()
+        })
+
         test('should create error.log file', async () => {
             Logger.error('test', 'Error for file test')
 

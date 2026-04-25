@@ -74,10 +74,19 @@ module.exports = class Express {
             }
 
             // Register custom middlewares
-            require('@app/http/middlewares/register.middleware').register(this.app)
+            try {
+                const middlewareRegister = require('@app/http/middlewares/register.middleware')
+                if (middlewareRegister && typeof middlewareRegister.register === 'function') {
+                    middlewareRegister.register(this.app)
+                }
+            } catch (err) {
+                if (err.code !== 'MODULE_NOT_FOUND') {
+                    Logger.set(err, 'express')
+                    throw err
+                }
+            }
         } catch (err) {
             Logger.set(err, 'express')
-            // FIX: Re-throw agar boot sequence gagal dengan jelas, bukan silent fail
             throw new Error(`Failed to setup middlewares: ${err.message}`)
         }
     }
@@ -88,7 +97,15 @@ module.exports = class Express {
      */
     static #routes() {
         try {
-            require('@app/routes/register.route')
+            try {
+                require('@app/routes/register.route')
+            } catch (err) {
+                if (err.code !== 'MODULE_NOT_FOUND') {
+                    Logger.set(err, 'express')
+                    throw err
+                }
+            }
+
             Routes.apply(this.router)
             this.app.use(this.router)
             Routes.allRoutes().forEach((v, _) => {

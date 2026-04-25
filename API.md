@@ -1,4 +1,4 @@
-# Framework API Documentation v2.0.0
+# Framework API Documentation v2.1.0
 
 Complete API reference for the Node.js MVC Framework.
 
@@ -261,10 +261,26 @@ const token = JWT.sign({ userId: 123, role: 'admin' }, '7d')
 
 - `payload` (Object): Token payload data
 - `expiresIn` (string, optional): Expiration time (default from config)
+- `isRefresh` (boolean, optional): Whether to use refresh token secret (default: false)
 
 **Returns:** `string` - JWT token
 
-##### `JWT.verify(token)`
+##### `JWT.signRefresh(payload, expiresIn)` ✨ New in v2.1.0
+
+Creates a JWT refresh token using `JWT_REFRESH_SECRET`.
+
+```javascript
+const refreshToken = JWT.signRefresh({ userId: 123 }, '7d')
+```
+
+**Parameters:**
+
+- `payload` (Object): Token payload data
+- `expiresIn` (string, optional): Expiration time (default from config refreshExpiresIn)
+
+**Returns:** `string` - JWT refresh token
+
+##### `JWT.verify(token, isRefresh)`
 
 Verifies and decodes a JWT token.
 
@@ -278,6 +294,21 @@ if (decoded) {
 **Parameters:**
 
 - `token` (string): JWT token to verify
+- `isRefresh` (boolean, optional): Whether to verify using refresh token secret (default: false)
+
+**Returns:** `Object|null` - Decoded payload or null if invalid
+
+##### `JWT.verifyRefresh(token)` ✨ New in v2.1.0
+
+Verifies and decodes a JWT refresh token.
+
+```javascript
+const decoded = JWT.verifyRefresh(refreshToken)
+```
+
+**Parameters:**
+
+- `token` (string): JWT refresh token to verify
 
 **Returns:** `Object|null` - Decoded payload or null if invalid
 

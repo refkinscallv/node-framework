@@ -51,10 +51,14 @@ class Logger {
             })
         )
 
-        this.logger = winston.createLogger({
-            level: config.app.production ? 'info' : 'debug',
-            format: logFormat,
-            transports: [
+        const transports = [
+            new winston.transports.Console({
+                format: consoleFormat,
+            })
+        ];
+
+        if (config.app.production) {
+            transports.push(
                 new winston.transports.File({
                     filename: path.join(logDir, 'error.log'),
                     level: 'error',
@@ -65,11 +69,14 @@ class Logger {
                     filename: path.join(logDir, 'combined.log'),
                     maxsize: 5242880,
                     maxFiles: 5,
-                }),
-                new winston.transports.Console({
-                    format: consoleFormat,
-                }),
-            ],
+                })
+            );
+        }
+
+        this.logger = winston.createLogger({
+            level: config.app.production ? 'info' : 'debug',
+            format: logFormat,
+            transports: transports,
         })
     }
 

@@ -19,6 +19,12 @@ describe('JWT Core', () => {
             expect(token.split('.')).toHaveLength(3)
         })
 
+        test('should generate a valid refresh token', () => {
+            const token = JWT.signRefresh(testPayload)
+            expect(token).toBeDefined()
+            expect(typeof token).toBe('string')
+        })
+
         test('should generate token with custom expiration', () => {
             const token = JWT.sign(testPayload, '1h')
             expect(token).toBeDefined()
@@ -50,6 +56,17 @@ describe('JWT Core', () => {
             expect(decoded.userId).toBe(testPayload.userId)
             expect(decoded.email).toBe(testPayload.email)
             expect(decoded.role).toBe(testPayload.role)
+            expect(decoded.iss).toBeDefined() // Issuer
+            expect(decoded.aud).toBeDefined() // Audience
+        })
+
+        test('should verify valid refresh token', () => {
+            const token = JWT.signRefresh(testPayload)
+            const decoded = JWT.verifyRefresh(token)
+
+            expect(decoded).toBeDefined()
+            expect(decoded).not.toBeNull()
+            expect(decoded.userId).toBe(testPayload.userId)
         })
 
         test('should return null for invalid token', () => {
