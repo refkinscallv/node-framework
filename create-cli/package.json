@@ -1,0 +1,17 @@
+{
+  "name": "@refkinscallv/create-node-framework",
+  "version": "1.0.0",
+  "description": "CLI to scaffold a new @refkinscallv/node-framework project",
+  "main": "index.js",
+  "bin": {
+    "create-node-framework": "./index.js",
+    "@refkinscallv/create-node-framework": "./index.js"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "degit": "^2.8.4",
+    "ora": "^5.4.1"
+  }
+}
