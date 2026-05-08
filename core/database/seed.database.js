@@ -168,7 +168,9 @@ async function seed() {
     info(`${passed} passed, ${failed} failed  (${Date.now() - start}ms)`)
 }
 
-seed().catch((err) => {
-    error(err.message)
-    process.exit(1)
-})
+seed()
+    .then(() => process.exit(0))
+    .catch((err) => {
+        error(err.message)
+        process.exit(1)
+    })
