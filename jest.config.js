@@ -9,7 +9,17 @@ module.exports = {
 
     // Coverage configuration
     coverageDirectory: 'coverage',
-    collectCoverageFrom: ['core/**/*.js', 'app/**/*.js', '!app/config.js', '!**/node_modules/**', '!**/tests/**'],
+    collectCoverageFrom: [
+        'core/**/*.js',
+        'app/**/*.js',
+        '!app/config.js',
+        '!app/models/**',
+        '!app/http/validators/**',
+        '!core/database/**',
+        '!core/helpers/setup.js',
+        '!**/node_modules/**',
+        '!**/tests/**',
+    ],
 
     // Test match patterns
     testMatch: ['**/tests/**/*.test.js', '**/__tests__/**/*.js'],
@@ -27,10 +37,10 @@ module.exports = {
     // Coverage thresholds
     coverageThreshold: {
         global: {
-            branches: 50,
-            functions: 50,
-            lines: 50,
-            statements: 50,
+            branches: 52,
+            functions: 65,
+            lines: 55,
+            statements: 55,
         },
     },
 

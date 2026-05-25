@@ -1,17 +1,55 @@
 {
   "name": "@refkinscallv/create-node-framework",
-  "version": "1.0.0",
-  "description": "CLI to scaffold a new @refkinscallv/node-framework project",
+  "version": "3.0.0",
+  "description": "Create a new Node Framework project instantly — scaffolds a full MVC Node.js app with Express, Socket.IO, Sequelize ORM, JWT auth, and more.",
+  "keywords": [
+    "create",
+    "scaffold",
+    "nodejs",
+    "framework",
+    "express",
+    "mvc",
+    "socket.io",
+    "sequelize",
+    "mysql",
+    "jwt",
+    "rest-api",
+    "backend",
+    "boilerplate",
+    "starter",
+    "template",
+    "node-framework",
+    "refkinscallv"
+  ],
+  "homepage": "https://github.com/refkinscallv/node-framework#readme",
+  "bugs": {
+    "url": "https://github.com/refkinscallv/node-framework/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/refkinscallv/node-framework.git",
+    "directory": "create-cli"
+  },
+  "license": "MIT",
+  "author": "Refkinscallv <refkinscallv@gmail.com>",
+  "type": "commonjs",
   "main": "index.js",
   "bin": {
-    "create-node-framework": "./index.js",
-    "@refkinscallv/create-node-framework": "./index.js"
+    "create-node-framework": "./index.js"
   },
-  "type": "commonjs",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "dependencies": {
     "chalk": "^4.1.2",
-    "commander": "^11.0.0",
+    "commander": "^12.1.0",
     "degit": "^2.8.4",
-    "ora": "^5.4.1"
+    "ora": "^5.4.1",
+    "prompts": "^2.4.2"
   }
 }

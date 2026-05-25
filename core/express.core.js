@@ -10,6 +10,7 @@ const qs = require('qs')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const fileUpload = require('express-fileupload')
+const rateLimit = require('express-rate-limit')
 const Routes = require('@refkinscallv/express-routing')
 const config = require('@app/config')
 const Logger = require('@core/logger.core')
@@ -33,6 +34,7 @@ module.exports = class Express {
     static init() {
         Logger.info('express', 'Preparing middlewares and routes...')
         this.#middlewares()
+        this.#healthCheck()
         this.#routes()
         Logger.info('express', 'Middlewares and routes are ready')
     }
@@ -73,6 +75,24 @@ module.exports = class Express {
                 this.app.set('views', config.express.view.path)
             }
 
+            // Global rate limiter
+            if (config.rateLimit?.global?.enabled) {
+                this.app.use(
+                    rateLimit({
+                        windowMs: config.rateLimit.global.windowMs,
+                        max: config.rateLimit.global.max,
+                        standardHeaders: true,
+                        legacyHeaders: false,
+                        message: {
+                            status: false,
+                            code: 429,
+                            message: 'Too many requests, please try again later',
+                        },
+                    })
+                )
+                Logger.info('express', `Global rate limiter enabled (${config.rateLimit.global.max} req / ${config.rateLimit.global.windowMs / 60000}min)`)
+            }
+
             // Register custom middlewares
             try {
                 const middlewareRegister = require('@app/http/middlewares/register.middleware')
@@ -89,6 +109,34 @@ module.exports = class Express {
             Logger.set(err, 'express')
             throw new Error(`Failed to setup middlewares: ${err.message}`)
         }
+    }
+
+    /**
+     * Register built-in health check endpoint
+     * GET /health — returns app status, uptime, and memory usage
+     * @private
+     */
+    static #healthCheck() {
+        this.app.get('/health', (req, res) => {
+            const mem = process.memoryUsage()
+            res.status(200).json({
+                status: true,
+                code: 200,
+                message: 'OK',
+                data: {
+                    app: config.app.name,
+                    env: process.env.NODE_ENV || 'development',
+                    uptime: Math.floor(process.uptime()),
+                    timestamp: new Date().toISOString(),
+                    memory: {
+                        rss: `${Math.round(mem.rss / 1024 / 1024)} MB`,
+                        heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)} MB`,
+                        heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)} MB`,
+                    },
+                },
+            })
+        })
+        Logger.info('express', 'Health check endpoint registered at GET /health')
     }
 
     /**

@@ -823,7 +823,7 @@
                     <span></span><span></span><span></span><span></span>
                 </div>
                 <span class="logo-name">Node Framework</span>
-                <span class="version-pill mono">v2.1.0</span>
+                <span class="version-pill mono">v<%= version %></span>
             </a>
 
             <div class="nav-links" id="navLinks">
@@ -873,7 +873,7 @@
     <section class="hero content">
         <div class="status-badge">
             <span class="status-dot"></span>
-            v2.1.0 — Live & Stable
+            v<%= version %> — Live & Stable
         </div>
 
         <h1 class="hero-title">
@@ -906,12 +906,12 @@
                 <div class="stat-label">Socket.IO</div>
             </div>
             <div class="stat">
-                <div class="stat-num" style="color: var(--amber);">6.x</div>
-                <div class="stat-label">Sequelize</div>
+                <div class="stat-num" style="color: var(--amber);">220+</div>
+                <div class="stat-label">Tests</div>
             </div>
             <div class="stat">
-                <div class="stat-num" style="color: var(--red);">JWT</div>
-                <div class="stat-label">Auth</div>
+                <div class="stat-num" style="color: var(--red);">MIT</div>
+                <div class="stat-label">License</div>
             </div>
         </div>
     </section>
@@ -978,16 +978,16 @@
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                     </div>
-                    <div class="feature-title">Security First</div>
-                    <p class="feature-desc">CORS, Helmet, and rate limiting configured out of the box. HTTPS support with a single environment flag.</p>
+                    <div class="feature-title">Auth Middleware & RBAC</div>
+                    <p class="feature-desc">Drop-in JWT authentication with <code>authenticate</code>, <code>optional</code>, <code>role()</code>, and <code>can()</code> — role and permission gates ready to use.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                     </div>
-                    <div class="feature-title">Testing Ready</div>
-                    <p class="feature-desc">Jest configured with unit and integration test directories. ESLint + Prettier + Husky for consistent code quality.</p>
+                    <div class="feature-title">220+ Tests</div>
+                    <p class="feature-desc">Jest unit + Supertest integration suite. Coverage enforced on every commit. ESLint + Prettier + Husky pre-commit hooks.</p>
                 </div>
 
                 <div class="feature-card">
@@ -996,6 +996,30 @@
                     </div>
                     <div class="feature-title">Lifecycle Hooks</div>
                     <p class="feature-desc">Register <code>before</code>, <code>after</code>, and <code>shutdown</code> hooks for fine-grained app lifecycle control.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </div>
+                    <div class="feature-title">In-Memory Cache</div>
+                    <p class="feature-desc">TTL-based key-value cache with <code>remember</code>, <code>pull</code>, <code>increment</code> — cache queries, counters, and one-time tokens without Redis.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <div class="feature-title">Rate Limiting</div>
+                    <p class="feature-desc">Global auto-wired rate limiter + per-route factory. <code>RateLimit.strict()</code> for login endpoints, <code>generous()</code> for public APIs.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    </div>
+                    <div class="feature-title">Docker Ready</div>
+                    <p class="feature-desc">Multi-stage Dockerfile (dev + production) and <code>docker-compose.yml</code> with MySQL and healthcheck. Ship containers in one command.</p>
                 </div>
             </div>
         </div>
@@ -1007,34 +1031,34 @@
     <section id="quickstart" class="content">
         <div class="section-inner">
             <span class="section-tag">Quick Start</span>
-            <h2 class="section-title">Zero to running<br>in 4 commands.</h2>
-            <p class="section-desc">The setup script handles dependencies, copies your <code style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); background: var(--accent-bg); padding: 1px 5px; border-radius: 4px;">.env</code>, and generates strong JWT secrets automatically.</p>
+            <h2 class="section-title">Zero to running<br>in one command.</h2>
+            <p class="section-desc">Scaffold with <code style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); background: var(--accent-bg); padding: 1px 5px; border-radius: 4px;">npm create</code>, or clone manually. The setup script handles dependencies, <code style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); background: var(--accent-bg); padding: 1px 5px; border-radius: 4px;">.env</code>, and JWT secrets automatically.</p>
 
             <div class="quickstart-grid">
                 <div class="steps">
                     <div class="step">
+                        <span class="step-num">✦</span>
+                        <div class="step-body">
+                            <div class="step-title">Option A — npm create (recommended)</div>
+                            <code class="step-cmd">npm create @refkinscallv/node-framework my-app</code>
+                        </div>
+                    </div>
+                    <div class="step">
                         <span class="step-num">01</span>
                         <div class="step-body">
-                            <div class="step-title">Clone the repository</div>
-                            <code class="step-cmd">git clone https://github.com/refkinscallv/node-framework.git</code>
+                            <div class="step-title">Option B — Clone manually</div>
+                            <code class="step-cmd">git clone https://github.com/refkinscallv/node-framework.git my-app</code>
                         </div>
                     </div>
                     <div class="step">
                         <span class="step-num">02</span>
                         <div class="step-body">
-                            <div class="step-title">Navigate into the project</div>
-                            <code class="step-cmd">cd node-framework</code>
+                            <div class="step-title">Install & auto-configure</div>
+                            <code class="step-cmd">cd my-app && npm run setup</code>
                         </div>
                     </div>
                     <div class="step">
                         <span class="step-num">03</span>
-                        <div class="step-body">
-                            <div class="step-title">Install & auto-configure</div>
-                            <code class="step-cmd">npm run setup</code>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <span class="step-num">04</span>
                         <div class="step-body">
                             <div class="step-title">Start in development mode</div>
                             <code class="step-cmd">npm run dev</code>
@@ -1059,14 +1083,14 @@
 
   <span class="c">// No try/catch — handle() wraps it</span>
   <span class="k">static</span> getAll = BaseController.<span class="f">handle</span>(
-    <span class="k">async</span> (req, res) => {
+    <span class="k">async</span> ({ req, res }) => {
       <span class="k">const</span> result = <span class="k">await</span> UserService.<span class="f">getAll</span>()
       <span class="k">return</span> BaseController.<span class="f">json</span>(res, result)
     }
   )
 
   <span class="k">static</span> store = BaseController.<span class="f">handle</span>(
-    <span class="k">async</span> (req, res) => {
+    <span class="k">async</span> ({ req, res }) => {
       <span class="k">const</span> result = <span class="k">await</span> UserService.<span class="f">store</span>(req.body)
       <span class="k">return</span> BaseController.<span class="f">json</span>(res, result)
     }
@@ -1115,15 +1139,18 @@
                 <span class="stack-pill"><span class="stack-dot"></span>Socket.IO 4.x</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Sequelize 6.x</span>
                 <span class="stack-pill"><span class="stack-dot"></span>JWT + Refresh</span>
+                <span class="stack-pill"><span class="stack-dot"></span>bcrypt</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Nodemailer</span>
                 <span class="stack-pill"><span class="stack-dot"></span>EJS Templates</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Winston Logger</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Zod Validation</span>
-                <span class="stack-pill"><span class="stack-dot"></span>Jest Testing</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Jest 30</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Helmet</span>
                 <span class="stack-pill"><span class="stack-dot"></span>CORS</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Rate Limiting</span>
+                <span class="stack-pill"><span class="stack-dot"></span>In-Memory Cache</span>
                 <span class="stack-pill"><span class="stack-dot"></span>File Upload</span>
+                <span class="stack-pill"><span class="stack-dot"></span>Docker</span>
                 <span class="stack-pill"><span class="stack-dot"></span>ESLint + Prettier</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Husky</span>
                 <span class="stack-pill"><span class="stack-dot"></span>Node.js >= 24</span>
@@ -1142,8 +1169,16 @@
             <div class="changelog">
                 <div class="cl-item">
                     <div class="cl-meta">
-                        <span class="cl-version">v2.1.0</span>
+                        <span class="cl-version">v3.0.0</span>
                         <span class="cl-badge">Latest</span>
+                        <span class="cl-date">2026-05-25</span>
+                    </div>
+                    <p class="cl-desc">Auth Middleware with RBAC (<code>role()</code>, <code>can()</code>), in-memory Cache, Rate Limiting, Health Check, Socket JWT auth, DB Transactions, Env Validation, Docker, and <code>npm create</code> CLI — 220 tests.</p>
+                </div>
+
+                <div class="cl-item">
+                    <div class="cl-meta">
+                        <span class="cl-version">v2.1.0</span>
                         <span class="cl-date">2026-04-25</span>
                     </div>
                     <p class="cl-desc">JWT refresh tokens, CLI setup script, core stability tests, logger Dev/Prod optimizations.</p>
@@ -1155,14 +1190,6 @@
                         <span class="cl-date">2026-03-11</span>
                     </div>
                     <p class="cl-desc">Major bug fixes, scalability improvements, new helper methods — <code>compact</code>, <code>sum</code>, <code>getJson</code> — and BaseService shortcut responses.</p>
-                </div>
-
-                <div class="cl-item">
-                    <div class="cl-meta">
-                        <span class="cl-version">v1.0.5</span>
-                        <span class="cl-date">2026-02-03</span>
-                    </div>
-                    <p class="cl-desc">Bug fixes and stability improvements.</p>
                 </div>
 
                 <div class="cl-item">

@@ -6,6 +6,63 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [3.0.0] - 2026-05-25
+
+### Added
+
+- **`AuthMiddleware`** (`app/http/middlewares/auth.middleware.js`) — Ready-to-use JWT authentication and RBAC middleware with four methods:
+  - `authenticate` — Requires valid Bearer token; attaches decoded payload to `req.user`
+  - `optional` — Sets `req.user` if token present, `null` otherwise; never blocks
+  - `role(...roles)` — Gate: user role must be in the allowed roles list
+  - `can(...permissions)` — Gate: user must have all listed permissions in `req.user.permissions`
+- **`Cache`** (`core/cache.core.js`) — In-memory key-value cache with TTL and rich API:
+  - `set(key, value, ttl)`, `get(key, default)`, `has(key)`, `delete(key)`, `flush()`
+  - `remember(key, ttl, fn)` / `rememberAsync(key, ttl, fn)` — Get-or-set patterns
+  - `add(key, value, ttl)` — Store only if key absent
+  - `pull(key)` — Get and delete in one call
+  - `increment(key, n)` / `decrement(key, n)` — Atomic counter helpers
+- **`RateLimit`** helper (`core/helpers/rateLimit.helper.js`) — Factory for `express-rate-limit` instances:
+  - `RateLimit.create(windowMs, max)` — Custom limiter
+  - `RateLimit.strict()` — 10 req/15min (for login, OTP endpoints)
+  - `RateLimit.generous()` — 300 req/15min
+  - `RateLimit.global()` — 200 req/15min
+- **`EnvValidator`** (`core/env.validator.js`) — Startup validation of required environment variables; throws with a clear list of missing keys instead of cryptic runtime errors.
+- **Health Check endpoint** — `GET /health` auto-registered by `express.core.js`; returns app name, env, uptime, timestamp, and memory stats.
+- **Global Rate Limiter** — `express.core.js` now auto-applies a configurable global rate limiter via `config.rateLimit.global`.
+- **Socket.IO JWT Auth** (`socket.core.js`) — Optional JWT middleware for Socket.IO connections. Enable with `SOCKET_AUTH_ENABLED=true`; sets `socket.user` on success.
+- **`Database.transaction(callback)`** — Wraps a Sequelize transaction; auto-commits on success, auto-rollbacks on error.
+- **Docker support** — Added `Dockerfile` (multi-stage: `development` + `production`), `docker-compose.yml` (app + MySQL with healthcheck), and `.dockerignore`.
+- **`create-cli` v3.0.0** — Fully rewritten for npm publish:
+  - Interactive project name prompt when argument is omitted
+  - Auto-detects package manager (npm / yarn / pnpm); overridable via `--pm`
+  - `--skip-install` and `--skip-setup` flags
+  - Node.js version check (>= 18)
+  - Removes `create-cli/` dir from scaffolded project
+  - Complete `package.json` metadata (keywords, engines, files, repository, bugs)
+  - Added `README.md` for the CLI package
+  - Usage: `npm create @refkinscallv/node-framework my-app`
+- **New unit tests** — 205 tests total (up from 116):
+  - `auth.middleware.test.js` (16 tests)
+  - `cache.core.test.js` (31 tests)
+  - `env.validator.test.js` (7 tests)
+  - `helpers.test.js` (55 tests — Arr, Str, Hash, BaseService, BaseController)
+
+### Changed
+
+- **`app/config.js`** — Added `app.requiredEnv`, `socket.auth`, and `rateLimit.global` config sections.
+- **`core/boot.core.js`** — Calls `EnvValidator.validateFromConfig()` during startup sequence.
+- **`core/express.core.js`** — Registers health check endpoint and global rate limiter.
+- **`core/socket.core.js`** — Added `#setupAuth()` private method for optional JWT middleware.
+- **`core/database.core.js`** — Added `transaction(callback)` method.
+- **`core/helpers/hash.helper.js`** — Replaced `uuid` package with `crypto.randomUUID()` (built-in Node.js, removes external ESM-only dependency).
+- **`jest.config.js`** — Updated `collectCoverageFrom` to exclude template files (`app/models`, `app/http/validators`, `core/database`, `core/helpers/setup.js`); raised coverage thresholds (branches: 52%, functions: 65%, lines/statements: 55%).
+
+### Removed
+
+- **`uuid`** package — Removed from dependencies; replaced by `crypto.randomUUID()` in `Hash.uuid()`.
+
+---
+
 ## [2.1.0] - 2026-04-25
 
 ### Added
@@ -137,6 +194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
+- **3.0.0** (2026-05-25) - Auth Middleware, Cache, Rate Limiting, Health Check, Socket JWT Auth, DB Transactions, Env Validation, Docker, create-cli v3.0.0
 - **2.1.0** (2026-04-25) - JWT Refresh tokens, Setup script, Logger optimizations, Core tests
 - **2.0.0** (2026-03-11) - Major bug fixes, scalability & DX improvements, new helper methods
 - **1.0.5** (2026-02-03) - Bug fixes and stability improvements

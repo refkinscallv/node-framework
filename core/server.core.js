@@ -1,13 +1,8 @@
 'use strict'
 
-/**
- * Server Core Module
- * Manages HTTP/HTTPS server creation and lifecycle
- * Handles server listening and port binding
- */
-
 const http = require('http')
 const https = require('https')
+const net = require('net')
 const fs = require('fs')
 const config = require('@app/config')
 const Logger = require('@core/logger.core')
@@ -47,26 +42,62 @@ module.exports = class Server {
     }
 
     /**
-     * Start server listening on specified port
-     * Binds server to port and starts accepting connections
-     * @param {Object} server - HTTP/HTTPS server instance
-     * @param {number} port - Port number to listen on
-     * @param {string} host - Host to bind (default: all interfaces)
-     * @returns {Promise<void>}
-     * @static
+     * Find the next available port starting from `port`.
+     * Probes each port with a temporary net.Server; increments on EADDRINUSE.
+     * @param {number} port - Starting port
+     * @param {string} host - Host to probe
+     * @param {number} maxAttempts - How many ports to try before giving up
+     * @returns {Promise<number>} Available port
      */
-    static listen(server, port, host = '0.0.0.0') {
+    static findAvailablePort(port, host = '0.0.0.0', maxAttempts = 20) {
         return new Promise((resolve, reject) => {
-            // Handle server errors
+            if (maxAttempts <= 0) {
+                return reject(new Error(`No available port found after exhausting ${20} attempts starting from ${port - 20}`))
+            }
+
+            const probe = net.createServer()
+
+            probe.once('error', (err) => {
+                probe.close()
+                if (err.code === 'EADDRINUSE') {
+                    resolve(this.findAvailablePort(port + 1, host, maxAttempts - 1))
+                } else {
+                    reject(err)
+                }
+            })
+
+            probe.once('listening', () => {
+                probe.close(() => resolve(port))
+            })
+
+            probe.listen(port, host)
+        })
+    }
+
+    /**
+     * Start server listening on specified port.
+     * Auto-increments to the next free port if the configured port is in use.
+     * @param {Object} server - HTTP/HTTPS server instance
+     * @param {number} port - Preferred port number
+     * @param {string} host - Host to bind (default: all interfaces)
+     * @returns {Promise<number>} Actual port the server is listening on
+     */
+    static async listen(server, port, host = '0.0.0.0') {
+        const availablePort = await this.findAvailablePort(port, host)
+
+        if (availablePort !== port) {
+            Logger.warn('server', `Port ${port} is in use — using port ${availablePort} instead`)
+        }
+
+        return new Promise((resolve, reject) => {
             server.once('error', (err) => {
                 Logger.set(err, 'server')
                 reject(err)
             })
 
-            // Start listening
-            server.listen(port, host, () => {
-                Logger.info('server', `Server listening on ${host}:${port}`)
-                resolve()
+            server.listen(availablePort, host, () => {
+                Logger.info('server', `Server listening on ${host}:${availablePort}`)
+                resolve(availablePort)
             })
         })
     }

@@ -14,6 +14,7 @@ const Server = require('@core/server.core')
 const Socket = require('@core/socket.core')
 const Hooks = require('@core/hooks.core')
 const ErrorHandler = require('@core/errorHandler.core')
+const EnvValidator = require('@core/env.validator')
 const config = require('@app/config')
 
 module.exports = class Boot {
@@ -27,6 +28,9 @@ module.exports = class Boot {
 
             // Set runtime environment
             Runtime.init()
+
+            // Validate required environment variables
+            EnvValidator.validateFromConfig()
 
             // Run before hooks
             await Hooks.run('before')
@@ -51,13 +55,16 @@ module.exports = class Boot {
             // Initialize Socket.IO
             Socket.init(server)
 
-            // Start listening for requests
-            await Server.listen(server, config.app.port)
+            // Start listening — returns the actual port (may differ if configured port was busy)
+            const actualPort = await Server.listen(server, config.app.port)
 
             // Run after hooks
             await Hooks.run('after')
 
-            Logger.info('boot', `Application started successfully on ${config.app.url}`)
+            const protocol = config.server.https ? 'https' : 'http'
+            const actualUrl = config.app.url.replace(/:\d+/, `:${actualPort}`) || `${protocol}://localhost:${actualPort}`
+
+            Logger.info('boot', `Application started successfully on ${actualUrl}`)
 
             // Setup graceful shutdown handlers
             this.#handleShutdown(server)

@@ -196,6 +196,27 @@ module.exports = class Database {
     }
 
     /**
+     * Execute a function inside a database transaction
+     * Automatically commits on success and rolls back on error
+     * @param {Function} callback - Async function receiving the transaction object
+     * @returns {Promise<*>} Result of the callback
+     * @throws {Error} If database not initialized or transaction fails
+     * @static
+     *
+     * @example
+     * await Database.transaction(async (t) => {
+     *     await User.create({ name: 'Alice' }, { transaction: t })
+     *     await Profile.create({ userId: 1 }, { transaction: t })
+     * })
+     */
+    static async transaction(callback) {
+        if (!this.sequelize) {
+            throw new Error('Database not initialized. Call Database.init() first.')
+        }
+        return this.sequelize.transaction(callback)
+    }
+
+    /**
      * Close database connection
      * Closes the Sequelize connection pool
      * Should be called during application shutdown

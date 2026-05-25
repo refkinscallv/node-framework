@@ -1,200 +1,187 @@
-# Node Framework - Node.js MVC Framework
+<div align="center">
 
-[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](https://github.com/refkinscallv/node-framework)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-brightgreen.svg)](https://nodejs.org/)
-[![npm](https://img.shields.io/badge/npm-%3E%3D11.0.0-red.svg)](https://www.npmjs.com/)
-[![Express](https://img.shields.io/badge/express-5.x-lightgrey.svg)](https://expressjs.com/)
-[![Socket.IO](https://img.shields.io/badge/socket.io-4.x-black.svg)](https://socket.io/)
-[![Sequelize](https://img.shields.io/badge/sequelize-6.x-52B0E7.svg)](https://sequelizejs.com/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/refkinscallv/node-framework/graphs/commit-activity)
+# Node Framework
 
-> **v2.1.0**: Advanced JWT security (Refresh tokens, Issuer/Audience), CLI setup script (`npm run setup`), Logger optimizations for Dev/Prod, and core stability updates.
+**A batteries-included MVC framework for Node.js**
 
-A modern and comprehensive Node.js MVC framework with Express, Socket.IO, Sequelize ORM, and real-time capabilities for building scalable web applications.
+Build production-ready REST APIs and real-time apps — without reinventing the wheel.
 
-## Features
+[![Version](https://img.shields.io/badge/version-3.0.0-6366f1.svg?style=for-the-badge)](https://github.com/refkinscallv/node-framework/releases)
+[![License](https://img.shields.io/badge/license-MIT-22c55e.svg?style=for-the-badge)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/express-5.x-000000.svg?style=for-the-badge&logo=express)](https://expressjs.com/)
+[![Socket.IO](https://img.shields.io/badge/socket.io-4.x-010101.svg?style=for-the-badge&logo=socket.io)](https://socket.io/)
 
-- **Express.js** - Fast, unopinionated web framework (v5.x)
-- **Socket.IO** - Real-time bidirectional communication
-- **Sequelize ORM** - Promise-based ORM for SQL databases
-- **JWT Authentication** - Secure token-based authentication with refresh tokens
-- **Email Support** - Built-in mailer with template and raw HTML support
-- **File Upload** - Express-fileupload integration
-- **EJS Templates** - Embedded JavaScript templating
-- **Logging** - Winston logger with file rotation
-- **Security** - CORS, Helmet, Rate limiting
-- **Testing** - Jest testing framework
-- **Code Quality** - ESLint, Prettier, Husky
-- **Helper Classes** - Env, Url, Hash, Str, Arr utilities
-- **Environment Config** - .env support with type conversion + `getJson()`
-- **BaseController.handle()** - Async error wrapper, zero boilerplate try/catch
-- **BaseService shortcuts** - `success()`, `fail()`, `notFound()`, `conflict()` and more
+[![CI](https://github.com/refkinscallv/node-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/refkinscallv/node-framework/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-220%20passing-22c55e.svg?style=flat-square)](tests/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-6366f1.svg?style=flat-square)](CONTRIBUTING.md)
+[![Maintained](https://img.shields.io/badge/maintained-yes-22c55e.svg?style=flat-square)](https://github.com/refkinscallv/node-framework/commits)
+[![npm create](https://img.shields.io/badge/npm%20create-%40refkinscallv%2Fnode--framework-cb3837.svg?style=flat-square&logo=npm)](https://www.npmjs.com/package/@refkinscallv/create-node-framework)
 
-## Requirements
+<br/>
 
-- Node.js >= 24.0.0
-- npm >= 11.0.0
-- MySQL (if using database)
+[**Quick Start**](#-quick-start) · [**Features**](#-features) · [**Documentation**](API.md) · [**Changelog**](CHANGELOG.md) · [**Contributing**](CONTRIBUTING.md)
 
-## Installation
+</div>
+
+---
+
+## Why Node Framework?
+
+Most Node.js projects start the same way: wire up Express, configure CORS, add JWT, set up a logger, connect a database, add validation... **before writing a single line of business logic.**
+
+Node Framework handles all of that — opinionated where it matters, extensible where it counts.
 
 ```bash
-# Clone the repository
-git clone https://github.com/refkinscallv/node-framework.git
-
-# Navigate to directory
-cd node-framework
-
-# Install dependencies and setup environment
-npm run setup
-
-# The setup script automatically:
-# 1. Installs dependencies
-# 2. Copies .env.example to .env
-# 3. Generates strong, random JWT secrets for your environment
+npm create @refkinscallv/node-framework my-app
+cd my-app && npm run dev
 ```
 
-## Quick Start
+Your app is running. Routes, auth, database, sockets, logging — already wired.
+
+---
+
+## ✨ Features
+
+### Core
+
+| | Feature | Description |
+|--|---------|-------------|
+| 🚀 | **Express 5.x** | Latest Express with async error propagation |
+| ⚡ | **Socket.IO 4.x** | Real-time events with optional JWT auth per connection |
+| 🗄️ | **Sequelize ORM** | Auto-loads models, associations, migrations, seeds |
+| 🔄 | **Transactions** | `Database.transaction()` — auto commit/rollback |
+| 🔒 | **JWT Auth** | Access + refresh tokens with issuer/audience validation |
+| 🛡️ | **Auth Middleware** | `authenticate`, `role()`, `can()`, `optional` — ready to use |
+| 🗃️ | **Cache** | In-memory TTL cache: `remember`, `pull`, `increment` |
+| 🚦 | **Rate Limiting** | Global auto-wired + `RateLimit.strict()` per route |
+| 🩺 | **Health Check** | `GET /health` — uptime, memory, env — auto-registered |
+| ✅ | **Env Validation** | Fail-fast on missing required env vars at startup |
+
+### Developer Experience
+
+| | Feature | Description |
+|--|---------|-------------|
+| 📦 | **BaseController** | `handle()` wraps async — zero boilerplate try/catch |
+| 🏗️ | **BaseService** | Structured responses: `success()`, `fail()`, `conflict()` |
+| 📨 | **Mailer** | EJS templates + raw HTML, SMTP via Nodemailer |
+| 📝 | **Logger** | Winston — console in dev, rotating files in prod |
+| 🔗 | **Hooks** | Lifecycle events: `before`, `after`, `shutdown` |
+| 🛠️ | **Helpers** | `Env`, `Str`, `Arr`, `Hash`, `Url`, `RateLimit` utilities |
+| 🔍 | **Zod Validation** | Schema-based request validation |
+| 🐳 | **Docker** | Multi-stage Dockerfile + docker-compose with MySQL |
+| 🧪 | **205+ Tests** | Jest unit + Supertest integration — coverage enforced |
+| 🎨 | **Code Quality** | ESLint + Prettier + Husky pre-commit hooks |
+
+---
+
+## 🚀 Quick Start
+
+### Option 1 — `npm create` (Recommended)
 
 ```bash
-# Development mode with auto-reload
+# npm
+npm create @refkinscallv/node-framework my-app
+
+# pnpm
+pnpm create @refkinscallv/node-framework my-app
+
+# yarn
+yarn create @refkinscallv/node-framework my-app
+```
+
+The CLI scaffolds the project, installs dependencies, and generates `.env` with secure JWT keys.
+
+### Option 2 — Clone
+
+```bash
+git clone https://github.com/refkinscallv/node-framework.git my-app
+cd my-app
+npm run setup      # copies .env.example → .env + generates JWT secrets
 npm run dev
-
-# Production mode
-npm start
-
-# Debug mode
-npm run dev:debug
 ```
 
-## Project Structure
+### Option 3 — Docker
 
-```
-node-framework/
-├── app/                        # Application code
-│   ├── config.js              # Configuration file
-│   ├── hooks/                 # Application lifecycle hooks
-│   ├── http/                  # HTTP layer
-│   │   ├── controllers/       # Request handlers (extends BaseController)
-│   │   ├── middlewares/       # Custom middlewares
-│   │   └── validators/        # Input validation (Zod)
-│   ├── models/                # Sequelize models (.model.js)
-│   ├── routes/                # Application routes
-│   ├── services/              # Business logic (extends BaseService)
-│   └── sockets/               # Socket.IO handlers
-├── core/                      # Framework core
-│   ├── boot.core.js          # Application bootstrapper
-│   ├── database.core.js      # Database manager
-│   ├── express.core.js       # Express configuration
-│   ├── errorHandler.core.js  # Error handler
-│   ├── hooks.core.js         # Hooks manager
-│   ├── jwt.core.js           # JWT utilities
-│   ├── logger.core.js        # Logger configuration
-│   ├── mailer.core.js        # Email sender
-│   ├── runtime.core.js       # Runtime configuration
-│   ├── server.core.js        # HTTP/HTTPS server
-│   ├── socket.core.js        # Socket.IO configuration
-│   └── helpers/              # Utility helper classes
-│       ├── env.helper.js
-│       ├── str.helper.js
-│       ├── setup.helper.js
-│       ├── arr.helper.js
-│       ├── hash.helper.js
-│       └── url.helper.js
-├── public/                    # Public assets
-│   ├── static/               # Static files (CSS, JS, images)
-│   └── views/                # EJS templates
-├── tests/                     # Test files
-│   ├── unit/                 # Unit tests
-│   └── integration/          # Integration tests
-├── logs/                      # Application logs
-├── tmp/                       # Temporary files (uploads)
-├── index.js                   # Application entry point
-├── package.json
-└── README.md
+```bash
+git clone https://github.com/refkinscallv/node-framework.git my-app
+cd my-app && cp .env.example .env
+# Edit .env with your settings
+docker compose up -d
 ```
 
-## Configuration
+### Available Scripts
 
-All configuration is centralized in `app/config.js`:
+```bash
+npm run dev          # Start with nodemon (auto-reload)
+npm run dev:debug    # Start with Node.js inspector
+npm start            # Production
+npm test             # Jest with coverage
+npm run lint         # ESLint --fix
+npm run format       # Prettier
+npm run db:migrate   # Run migrations
+npm run db:seed      # Run seeders
+npm run db:reset     # Drop + recreate tables
+npm run logs:clear   # Clear log files
+```
 
-### Application Settings
+---
+
+## 📁 Project Structure
+
+```
+my-app/
+├── app/                              # Your application code
+│   ├── config.js                    # Centralized configuration
+│   ├── hooks/register.hook.js       # Lifecycle hooks (before/after/shutdown)
+│   ├── http/
+│   │   ├── controllers/
+│   │   │   └── base.controller.js   # Response helpers + handle()
+│   │   ├── middlewares/
+│   │   │   ├── auth.middleware.js   # JWT auth + role() + can() + optional
+│   │   │   └── register.middleware.js
+│   │   └── validators/              # Zod schema validators
+│   ├── models/                      # Sequelize models (*.model.js)
+│   ├── routes/
+│   │   ├── register.route.js        # Imports all route files
+│   │   ├── web.route.js
+│   │   └── api.route.js
+│   ├── services/
+│   │   └── base.service.js          # Structured response builders
+│   └── sockets/register.socket.js   # Socket.IO event handlers
+│
+├── core/                             # Framework internals
+│   ├── boot.core.js                 # Boot sequence
+│   ├── cache.core.js                # In-memory cache
+│   ├── database.core.js             # Sequelize + transaction()
+│   ├── env.validator.js             # Startup env validation
+│   ├── express.core.js              # Express + /health + rate limiter
+│   ├── jwt.core.js                  # JWT sign/verify/refresh
+│   ├── logger.core.js               # Winston logger
+│   ├── mailer.core.js               # Nodemailer
+│   ├── socket.core.js               # Socket.IO + JWT auth
+│   └── helpers/
+│       ├── env.helper.js            # Env var access with type casting
+│       ├── arr.helper.js            # Array utilities
+│       ├── hash.helper.js           # bcrypt, sha256, uuid, hmac
+│       ├── rateLimit.helper.js      # Per-route rate limiter factory
+│       ├── str.helper.js            # String utilities
+│       └── url.helper.js            # URL generation
+│
+├── Dockerfile                        # Multi-stage (dev + production)
+├── docker-compose.yml                # App + MySQL
+├── .env.example                      # Environment variable template
+└── package.json
+```
+
+---
+
+## 📖 Usage Examples
+
+### Controllers & Services
 
 ```javascript
-app: {
-    production: false,           // Production mode
-    port: 3025,                 // Server port
-    url: 'http://localhost:3025', // Base URL
-    name: 'My App',             // App name
-    timezone: 'Asia/Jakarta',   // Timezone
-    log_dir: 'logs',           // Logs directory
-}
-```
-
-### Database Configuration
-
-```javascript
-database: {
-    status: false,              // Enable/disable database
-    dialect: 'mysql',          // Database type
-    host: 'localhost',
-    port: 3306,
-    database: 'database',
-    username: 'root',
-    password: '',
-    sync: true,                 // Auto-sync models
-    alter: false,               // Alter existing tables
-    // ... more options
-}
-```
-
-## Controllers
-
-Create controllers extending `BaseController` in `app/http/controllers/`:
-
-```javascript
-const BaseController = require('@app/http/controllers/base.controller')
-const UserService = require('@app/services/user.service')
-
-module.exports = class UserController extends BaseController {
-
-    // v2.0.0: handle() wraps async — no more manual try/catch!
-    static getAll = BaseController.handle(async (req, res) => {
-        const result = await UserService.getAll()
-        return BaseController.json(res, result)
-    })
-
-    static store = BaseController.handle(async (req, res) => {
-        const result = await UserService.store(req.body)
-        return BaseController.json(res, result)
-    })
-}
-```
-
-**Available BaseController methods:**
-
-| Method | Status | Description |
-|--------|--------|-------------|
-| `handle(fn)` | ✨ New | Async wrapper, errors auto-forwarded to Express error handler |
-| `json(res, output)` | - | Universal JSON response (pass BaseService output directly) |
-| `success(res, msg, data)` | - | 200 response |
-| `created(res, msg, data)` | - | 201 response |
-| `error(res, msg, code)` | - | Error response |
-| `validationError(res, v)` | - | 422 validation error |
-| `notFound(res, msg)` | - | 404 response |
-| `unauthorized(res, msg)` | - | 401 response |
-| `forbidden(res, msg)` | - | 403 response |
-| `serverError(res, msg)` | - | 500 response |
-| `paginated(res, items, meta)` | ✨ New | Paginated response with meta |
-| `noContent(res)` | - | 204 response |
-
-## Services
-
-Create services extending `BaseService` in `app/services/`:
-
-```javascript
+// app/services/user.service.js
 const BaseService = require('@app/services/base.service')
 const Database = require('@core/database.core')
 
@@ -216,196 +203,316 @@ module.exports = class UserService extends BaseService {
 }
 ```
 
-**Available BaseService methods (v2.0.0):**
-
-| Method | Code | Description |
-|--------|------|-------------|
-| `json(status, code, msg, data, custom)` | - | Universal builder |
-| `success(msg, data)` | ✨ 200 | Success |
-| `created(msg, data)` | ✨ 201 | Created |
-| `fail(msg, code, data)` | ✨ 400 | Generic error |
-| `notFound(msg)` | ✨ 404 | Not found |
-| `unauthorized(msg)` | ✨ 401 | Unauthorized |
-| `forbidden(msg)` | ✨ 403 | Forbidden |
-| `conflict(msg)` | ✨ 409 | Conflict / duplicate |
-| `validationFail(msg, errors)` | ✨ 422 | Validation error |
-| `serverError(msg)` | ✨ 500 | Server error |
-
-## Models
-
-Define models in `app/models/` (file must end with `.model.js`):
-
 ```javascript
-// app/models/user.model.js
-module.exports = (sequelize, DataTypes) => {
-    const User = sequelize.define('User', {
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        email: {
-            type: DataTypes.STRING,
-            unique: true,
-            allowNull: false,
-        },
-    }, {
-        tableName: 'users'
+// app/http/controllers/user.controller.js
+const BaseController = require('@app/http/controllers/base.controller')
+const UserService = require('@app/services/user.service')
+
+module.exports = class UserController extends BaseController {
+    // handle() = zero boilerplate try/catch — errors auto-forwarded to Express
+    static getAll = BaseController.handle(async ({ req, res }) => {
+        return BaseController.json(res, await UserService.getAll())
     })
 
-    return User
+    static store = BaseController.handle(async ({ req, res }) => {
+        return BaseController.json(res, await UserService.store(req.body))
+    })
 }
 ```
 
-## Routing
-
-Define routes in `app/routes/`:
+### Routing with Auth & Rate Limiting
 
 ```javascript
 // app/routes/api.route.js
 const Routes = require('@refkinscallv/express-routing')
+const AuthMiddleware = require('@app/http/middlewares/auth.middleware')
+const RateLimit = require('@core/helpers/rateLimit.helper')
+const AuthController = require('@app/http/controllers/auth.controller')
 const UserController = require('@app/http/controllers/user.controller')
 
 Routes.group('api', () => {
-    Routes.group('users', () => {
-        Routes.get('/', [UserController, 'getAll'])
-        Routes.post('/', [UserController, 'store'])
+
+    // Public — rate-limited
+    Routes.post('auth/login', [AuthController, 'login'], [RateLimit.strict()])
+    Routes.post('auth/register', [AuthController, 'register'], [RateLimit.strict()])
+
+    // Authenticated — scoped middleware block
+    Routes.middleware([AuthMiddleware.authenticate], () => {
+        Routes.get('profile', [UserController, 'profile'])
+        Routes.put('profile', [UserController, 'update'])
+
+        // Admin only
+        Routes.group('admin', () => {
+            Routes.controller('users', UserController)
+        }, [AuthMiddleware.role('admin')])
     })
 })
 ```
 
-## Socket.IO
-
-Register socket handlers in `app/sockets/register.socket.js`:
+### Cache
 
 ```javascript
+const Cache = require('@core/cache.core')
+
+// Cache database results for 5 minutes
+const users = await Cache.rememberAsync('users:all', 300, async () => {
+    return await User.findAll()
+})
+
+// One-time token (pull = get + delete)
+Cache.set('reset:token:abc', userId, 900)
+const id = Cache.pull('reset:token:abc')
+
+// Rate counter
+if (Cache.increment(`login:fails:${ip}`) >= 5) {
+    return BaseController.unauthorized(res, 'Too many failed attempts')
+}
+```
+
+### Database Transactions
+
+```javascript
+const Database = require('@core/database.core')
+
+await Database.transaction(async (t) => {
+    const user = await User.create({ name: 'Alice', email: 'alice@example.com' }, { transaction: t })
+    await Profile.create({ userId: user.id, bio: '...' }, { transaction: t })
+    await Wallet.create({ userId: user.id, balance: 0 }, { transaction: t })
+    // All created atomically — rolls back if any step fails
+})
+```
+
+### Socket.IO with JWT Auth
+
+```javascript
+// .env
+SOCKET_AUTH_ENABLED=true
+
+// app/sockets/register.socket.js
 module.exports = {
     register(io) {
         io.on('connection', (socket) => {
+            // socket.user = decoded JWT payload (when SOCKET_AUTH_ENABLED=true)
+            console.log(`${socket.user.email} connected`)
+
             socket.on('message', (data) => {
-                io.emit('message', data)
+                io.to(socket.user.roomId).emit('message', {
+                    from: socket.user.email,
+                    ...data
+                })
             })
         })
-    },
+    }
 }
+
+// Client-side
+const socket = io('http://localhost:3030', {
+    auth: { token: 'your-jwt-token' }
+})
 ```
 
-## Helper Classes
+### Environment Validation
 
 ```javascript
-const { Env, Url, Hash, Str, Arr } = require('@core/helpers')
+// .env
+REQUIRED_ENV=JWT_SECRET,DB_HOST,MAIL_USER
 
-// Environment variables (v2.0.0: fixed empty-string bug)
-const port = Env.getInt('APP_PORT', 3000)
-const config = Env.getJson('APP_CONFIG', {})   // NEW: parse JSON env var
-const isDev = Env.isDevelopment()
-
-// URL generation
-const profileUrl = Url.to('users/profile')
-const apiUrl = Url.api('users')
-
-// Hashing
-const hashed = await Hash.make('password')
-const token = Hash.random(32)
-const id = Hash.uuid()
-const sig = Hash.hmac(data, secret)     // NEW: HMAC signature
-
-// String manipulation (v2.0.0: fixed camelCase, +isEmpty/padLeft/padRight)
-const slug = Str.slug('My Blog Post')
-const camel = Str.camelCase('hello_world')  // FIX: now handles _ and -
-const empty = Str.isEmpty('  ')             // NEW: true
-const padded = Str.padLeft('42', 5, '0')    // NEW: '00042'
-
-// Array operations (v2.0.0: fixed first/last empty array, +compact/sum)
-const first = Arr.first([], 'default')      // FIX: returns 'default' not undefined
-const last = Arr.last([1,2,3])
-const clean = Arr.compact([0, 1, null, 2])  // NEW: [1, 2]
-const total = Arr.sum([{price: 10}, {price: 20}], 'price') // NEW: 30
+// The app throws a clear error on startup if any are missing:
+// Error: Missing required environment variables: JWT_SECRET, DB_HOST
 ```
 
-See [HELPERS.md](HELPERS.md) for complete documentation.
+### Health Check (automatic)
 
-## Hooks
-
-Use hooks for lifecycle events in `app/hooks/register.hook.js`:
-
-```javascript
-module.exports = {
-    register(Hooks) {
-        Hooks.register('before', async () => {
-            // Before initialization
-        })
-        Hooks.register('after', async () => {
-            // After initialization
-        })
-        Hooks.register('shutdown', async () => {
-            // Cleanup on shutdown
-        })
-    },
+```
+GET /health
+```
+```json
+{
+  "status": true,
+  "code": 200,
+  "message": "OK",
+  "data": {
+    "app": "My App",
+    "env": "production",
+    "uptime": 3600,
+    "timestamp": "2026-05-25T10:00:00.000Z",
+    "memory": { "rss": "85 MB", "heapUsed": "42 MB", "heapTotal": "56 MB" }
+  }
 }
 ```
-
-## Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run unit tests only
-npm run test:unit
-
-# Run in watch mode
-npm run test:watch
-```
-
-## Scripts
-
-```bash
-npm run dev              # Start with nodemon
-npm run dev:debug        # Start with debugger
-npm start                # Production start
-npm run lint             # Run ESLint
-npm run format           # Format with Prettier
-npm run logs:clear       # Clear log files
-```
-
-## Security
-
-- Use strong JWT secrets in production
-- Enable HTTPS in production (`SERVER_HTTPS=true`)
-- Configure CORS appropriately
-- Use environment variables for sensitive data
-- Enable rate limiting for APIs
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Author
-
-**Refkinscallv**
-
-- Email: refkinscallv@gmail.com
-- GitHub: [@refkinscallv](https://github.com/refkinscallv)
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for details.
-
-## Version History
-
-- **2.1.0** (2026-04-25) - JWT refresh tokens, Setup script, Core tests, Logger optimizations
-- **2.0.0** (2026-03-11) - Major bug fixes, scalability & DX improvements, new helper methods
-- **1.0.5** (2026-02-03) - Bug fixes and stability improvements
-- **1.0.0** (2026-01-04) - Initial release
 
 ---
 
-Made with ❤️ by Refkinscallv
+## ⚙️ Environment Variables
+
+Copy `.env.example` to `.env` and configure:
+
+```env
+# App
+APP_NAME=My App
+APP_PORT=3030
+APP_URL=http://localhost:3030
+APP_TIMEZONE=Asia/Jakarta
+NODE_ENV=development
+
+# Required env validation (comma-separated)
+REQUIRED_ENV=JWT_SECRET,DB_HOST
+
+# JWT (auto-generated by npm run setup)
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Database
+DB_ENABLED=false
+DB_DIALECT=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=database
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Socket
+SOCKET_AUTH_ENABLED=false
+
+# Rate Limiting
+RATE_LIMIT_ENABLED=true
+RATE_LIMIT_MAX=200
+RATE_LIMIT_WINDOW_MS=900000
+
+# Mail
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=
+MAIL_PASSWORD=
+
+# Server
+SERVER_HTTPS=false
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+npm test                  # All tests with coverage
+npm run test:unit         # Unit tests only
+npm run test:watch        # Watch mode
+```
+
+**Coverage thresholds** (enforced): branches 52% · functions 65% · lines/statements 55%
+
+Tests are located in `tests/unit/` and `tests/integration/`.
+
+---
+
+## 🐳 Docker
+
+**Development:**
+```bash
+docker compose up
+```
+
+**Production build:**
+```bash
+docker build --target production -t my-app .
+docker run -p 3030:3030 --env-file .env my-app
+```
+
+---
+
+## 🔐 Security Checklist
+
+- [ ] Change `JWT_SECRET` and `JWT_REFRESH_SECRET` (use `npm run setup`)
+- [ ] Set `NODE_ENV=production` in production
+- [ ] Enable HTTPS (`SERVER_HTTPS=true`) with valid SSL certificates
+- [ ] Configure CORS origin in `app/config.js` (not `*`)
+- [ ] Set `RATE_LIMIT_ENABLED=true` and tune limits
+- [ ] Use strong database passwords
+- [ ] Never commit `.env` to version control
+
+---
+
+## 📦 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Web | Express.js 5.x |
+| Real-time | Socket.IO 4.x |
+| Database | MySQL + Sequelize 6.x |
+| Auth | JSON Web Tokens (jsonwebtoken) |
+| Validation | Zod 4.x |
+| Hashing | bcrypt + Node.js crypto |
+| Email | Nodemailer |
+| Logging | Winston + daily-rotate-file |
+| Security | Helmet + CORS + express-rate-limit |
+| Templating | EJS |
+| Testing | Jest 30 + Supertest |
+| Quality | ESLint 10 + Prettier + Husky |
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Redis cache adapter
+- [ ] Queue / background jobs (BullMQ)
+- [ ] PostgreSQL + SQLite dialect examples
+- [ ] OpenAPI / Swagger auto-generation
+- [ ] CLI scaffold for controllers, services, models
+
+Have an idea? [Open a feature request](https://github.com/refkinscallv/node-framework/issues/new?template=feature_request.md)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+```bash
+git clone https://github.com/refkinscallv/node-framework.git
+cd node-framework && npm run setup
+npm run dev
+```
+
+1. Fork → branch (`feat/my-feature`) → commit → PR
+2. All PRs require passing tests: `npm test`
+3. Follow the existing code style (ESLint + Prettier)
+
+---
+
+## 📄 License
+
+MIT © [Refkinscallv](https://github.com/refkinscallv)
+
+---
+
+## 📬 Author
+
+**Refkinscallv**
+
+- GitHub: [@refkinscallv](https://github.com/refkinscallv)
+- Email: refkinscallv@gmail.com
+
+---
+
+## 📋 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+| Version | Date | Highlights |
+|---------|------|-----------|
+| **3.0.0** | 2026-05-25 | Auth Middleware, Cache, Rate Limiting, Health Check, Socket JWT Auth, DB Transactions, Env Validation, Docker, create-cli v3 |
+| **2.1.0** | 2026-04-25 | JWT refresh tokens, Setup script, Logger optimizations |
+| **2.0.0** | 2026-03-11 | BaseController.handle(), BaseService shortcuts, major bug fixes |
+| **1.0.0** | 2026-01-04 | Initial release |
+
+---
+
+<div align="center">
+
+If this project helps you, please consider giving it a ⭐ on GitHub — it helps others discover it!
+
+**[Star on GitHub](https://github.com/refkinscallv/node-framework)**
+
+</div>

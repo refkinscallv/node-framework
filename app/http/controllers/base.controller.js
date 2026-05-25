@@ -91,15 +91,15 @@ module.exports = class BaseController {
      * }
      *
      * // Sesudah (lebih simple):
-     * static getAll = BaseController.handle(async (req, res) => {
+     * static getAll = BaseController.handle(async ({ req, res }) => {
      *     const result = await UserService.getAll()
      *     return BaseController.json(res, result)
      * })
      */
     static handle(fn) {
-        return async (req, res, next) => {
+        return async ({ req, res, next }) => {
             try {
-                await fn(req, res, next)
+                await fn({ req, res, next })
             } catch (err) {
                 next(err)
             }

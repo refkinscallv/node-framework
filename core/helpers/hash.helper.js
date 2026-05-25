@@ -8,9 +8,6 @@
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const md5 = require('md5')
-// FIX: Pindahkan require ke top-level — sebelumnya di-require di dalam method,
-// artinya module resolution terjadi setiap kali method dipanggil (performance issue)
-const { v4: uuidv4 } = require('uuid')
 const uniqid = require('uniqid')
 
 module.exports = class Hash {
@@ -71,11 +68,11 @@ module.exports = class Hash {
     }
 
     /**
-     * Generate UUID v4
+     * Generate UUID v4 using Node.js built-in crypto (Node >= 14.17)
      * @returns {string}
      */
     static uuid() {
-        return uuidv4()
+        return crypto.randomUUID()
     }
 
     /**

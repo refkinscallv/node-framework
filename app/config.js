@@ -17,6 +17,9 @@ module.exports = {
         name: Env.get('APP_NAME', 'Node Framework'),
         timezone: Env.get('APP_TIMEZONE', 'UTC'),
         log_dir: Env.get('LOG_DIR', 'logs'),
+        // List env variable names that MUST be set before the app starts
+        // The boot sequence will throw a clear error if any are missing
+        requiredEnv: Env.getArray('REQUIRED_ENV', []),
     },
 
 
@@ -97,6 +100,22 @@ module.exports = {
             maxHttpBufferSize: 1e6,
             transports: ['websocket', 'polling'],
             allowUpgrades: true,
+        },
+        // JWT authentication middleware for Socket.IO connections
+        // When enabled, clients must send token via socket.auth.token or Authorization header
+        auth: {
+            enabled: Env.getBool('SOCKET_AUTH_ENABLED', false),
+            errorMessage: Env.get('SOCKET_AUTH_ERROR', 'Authentication required'),
+        },
+    },
+
+    // Rate limiting configuration
+    rateLimit: {
+        // Global rate limit applied to all routes
+        global: {
+            enabled: Env.getBool('RATE_LIMIT_ENABLED', true),
+            windowMs: Env.getInt('RATE_LIMIT_WINDOW_MS', 15 * 60 * 1000), // 15 minutes
+            max: Env.getInt('RATE_LIMIT_MAX', 200),
         },
     },
 

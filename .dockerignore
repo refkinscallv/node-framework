@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log
+.env
+.env.*
+!.env.example
+coverage
+logs
+tmp
+.git
+.gitignore
+*.md
+.eslintrc*
+.prettierrc*
+.husky
+tests
+create-cli
