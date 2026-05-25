@@ -1,6 +1,6 @@
 {
   "name": "@refkinscallv/create-node-framework",
-  "version": "3.0.0",
+  "version": "3.0.2",
   "description": "Create a new Node Framework project instantly — scaffolds a full MVC Node.js app with Express, Socket.IO, Sequelize ORM, JWT auth, and more.",
   "keywords": [
     "create",
@@ -35,9 +35,10 @@
   "type": "commonjs",
   "main": "index.js",
   "bin": {
-    "create-node-framework": "./index.js"
+    "create-node-framework": "bin/create-node-framework.js"
   },
   "files": [
+    "bin/",
     "index.js",
     "README.md"
   ],
@@ -46,6 +47,7 @@
     "npm": ">=9.0.0"
   },
   "dependencies": {
+    "app-test": "^3.0.0",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
     "degit": "^2.8.4",

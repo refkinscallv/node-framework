@@ -6,7 +6,7 @@
 
 Build production-ready REST APIs and real-time apps — without reinventing the wheel.
 
-[![Version](https://img.shields.io/badge/version-3.0.0-6366f1.svg?style=for-the-badge)](https://github.com/refkinscallv/node-framework/releases)
+[![Version](https://img.shields.io/badge/version-3.0.2-6366f1.svg?style=for-the-badge)](https://github.com/refkinscallv/node-framework/releases)
 [![License](https://img.shields.io/badge/license-MIT-22c55e.svg?style=for-the-badge)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D24.0.0-339933.svg?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/express-5.x-000000.svg?style=for-the-badge&logo=express)](https://expressjs.com/)
@@ -502,7 +502,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full version history.
 
 | Version | Date | Highlights |
 |---------|------|-----------|
-| **3.0.0** | 2026-05-25 | Auth Middleware, Cache, Rate Limiting, Health Check, Socket JWT Auth, DB Transactions, Env Validation, Docker, create-cli v3 |
+| **3.0.2** | 2026-05-25 | Auth Middleware, Cache, Rate Limiting, Health Check, Socket JWT Auth, DB Transactions, Env Validation, Docker, create-cli v3 |
 | **2.1.0** | 2026-04-25 | JWT refresh tokens, Setup script, Logger optimizations |
 | **2.0.0** | 2026-03-11 | BaseController.handle(), BaseService shortcuts, major bug fixes |
 | **1.0.0** | 2026-01-04 | Initial release |

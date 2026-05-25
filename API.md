@@ -1,4 +1,4 @@
-# Framework API Documentation v3.0.0
+# Framework API Documentation v3.0.2
 
 Complete API reference for the Node.js MVC Framework.
 
@@ -1642,7 +1642,7 @@ await Database.close()
 
 ---
 
-**Framework Version**: 3.0.0  
+**Framework Version**: 3.0.2  
 **Last Updated**: 2026-05-25
 
 For more examples and detailed guides, see the [README.md](README.md).
