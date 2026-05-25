@@ -41,7 +41,10 @@ module.exports = {
 
     // Express configuration
     express: {
-        trustProxy: true,
+        // Number of trusted proxy hops. 1 = trust first proxy (nginx/load balancer).
+        // Set TRUST_PROXY=false for direct connections (no proxy).
+        // Never use true — it allows IP spoofing to bypass rate limiting.
+        trustProxy: Env.get('TRUST_PROXY', '1') === 'false' ? false : Env.getInt('TRUST_PROXY', 1),
         cors: {
             origin: (origin, callback) => callback(null, true),
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD', 'CONNECT', 'TRACE'],
